@@ -15,5 +15,9 @@
     <ProjectReference Include="..\Shared\ConsiderBorrow.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+  </ItemGroup>
+
 
 </Project>
