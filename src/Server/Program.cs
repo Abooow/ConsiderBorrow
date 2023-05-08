@@ -1,4 +1,5 @@
 using ConsiderBorrow.Server.DataAccess;
+using ConsiderBorrow.Server.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,9 @@ builder.Services.AddRazorPages();
 
 // Data Access.
 builder.Services.AddDbContext<ApplicationDbContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Services.
+builder.Services.AddTransient<ICategoryService, CategoryService>();
 
 var app = builder.Build();
 
