@@ -1,4 +1,5 @@
 ﻿using ConsiderBorrow.Server.DataAccess;
+using ConsiderBorrow.Shared.Models.Categories;
 using ConsiderBorrow.Shared.Models.LibraryItems;
 using ConsiderBorrow.Shared.Results;
 using Microsoft.EntityFrameworkCore;
@@ -99,10 +100,12 @@ internal sealed class LibraryItemService : ILibraryItemService
 
     public async Task<IEnumerable<LibraryItemResponse>> GetLibraryItemsAsync(int currentPage, int pageSize, bool sortByType)
     {
+        // Order by CategoryName (ASC) by default, else by Type (ASC).
         var query = sortByType
             ? _dbContext.LibraryItems.OrderBy(x => x.Type)
             : _dbContext.LibraryItems.OrderBy(x => x.Category!.CategoryName);
 
+        // Using pagination to avoid returning all records.
         var libraryItems = await query
             .ThenBy(x => x.Id)
             .Skip(currentPage * pageSize)
@@ -115,12 +118,62 @@ internal sealed class LibraryItemService : ILibraryItemService
                 x.Pages,
                 x.RunTimeMinutes,
                 x.IsBorrowable,
-                x.BorrowDate == null,
+                x.Borrower != null,
                 x.Borrower,
                 x.BorrowDate,
                 x.Type))
             .ToListAsync();
 
         return libraryItems;
+    }
+
+    public async Task<Result> BorrowItemAsync(int itemId, BorrowLibraryItemRequest borrowLibraryItemRequest)
+    {
+        var record = await _dbContext.LibraryItems.FindAsync(itemId);
+        if (record is null)
+            return Result.Fail($"Could not find a library item with ID {itemId}");
+
+        // Check if the customer can borrow this item.
+        if (!record.IsBorrowable)
+            return Result.Fail($"This item of type '{record.Type}' is not eligible for borrowing.");
+
+        if (record.Borrower is not null)
+            return Result.Fail("This item is already borrowed by another customer.");
+
+        // Mark item as borrowed.
+        record.Borrower = borrowLibraryItemRequest.CustomerName;
+        _dbContext.Entry(record).Property(x => x.Borrower).IsModified = true;
+
+        record.BorrowDate = DateTime.UtcNow;
+        _dbContext.Entry(record).Property(x => x.BorrowDate).IsModified = true;
+
+        await _dbContext.SaveChangesAsync();
+
+        return Result.Success();
+    }
+
+    public async Task<Result> ReturnItemAsync(int itemId)
+    {
+        var record = await _dbContext.LibraryItems.FindAsync(itemId);
+        if (record is null)
+            return Result.Fail($"Could not find a library item with ID {itemId}");
+
+        // Check if item can be returned.
+        if (!record.IsBorrowable)
+            return Result.Fail($"This item of type '{record.Type}' is not eligible for returning.");
+
+        if (record.Borrower is null)
+            return Result.Fail("This item cannot be returned as it's not yet checked out.");
+
+        // Mark item as returned.
+        record.Borrower = null;
+        _dbContext.Entry(record).Property(x => x.Borrower).IsModified = true;
+
+        record.BorrowDate = null;
+        _dbContext.Entry(record).Property(x => x.BorrowDate).IsModified = true;
+
+        await _dbContext.SaveChangesAsync();
+
+        return Result.Success();
     }
 }

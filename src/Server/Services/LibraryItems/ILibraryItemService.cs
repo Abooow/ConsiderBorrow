@@ -11,4 +11,6 @@ public interface ILibraryItemService
     Task<Result<LibraryItemResponse>> CreateReferenceBookAsync(CreateReferenceBookRequest createReferenceBookRequest);
 
     Task<IEnumerable<LibraryItemResponse>> GetLibraryItemsAsync(int currentPage, int pageSize, bool sortByType);
+    Task<Result> BorrowItemAsync(int itemId, BorrowLibraryItemRequest borrowLibraryItemRequest);
+    Task<Result> ReturnItemAsync(int itemId);
 }

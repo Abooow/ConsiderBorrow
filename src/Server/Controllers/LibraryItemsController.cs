@@ -57,9 +57,29 @@ public sealed class LibraryItemsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<LibraryItemResponse>>> GetLibraryItems([FromQuery] int currentPage = 0, [FromQuery] int pageSize = 16, [FromQuery] bool sortByType = false)
+    public async Task<IEnumerable<LibraryItemResponse>> GetLibraryItems([FromQuery] int currentPage = 0, [FromQuery] int pageSize = 16, [FromQuery] bool sortByType = false)
     {
         var libraryItems = await _libraryItemService.GetLibraryItemsAsync(currentPage, pageSize, sortByType);
-        return Ok(libraryItems);
+        return libraryItems;
+    }
+
+    [HttpPost("check-out/{id}")]
+    public async Task<ActionResult<Result>> BorrowLibraryItem(int id, BorrowLibraryItemRequest borrowLibraryItemRequest)
+    {
+        var result = await _libraryItemService.BorrowItemAsync(id, borrowLibraryItemRequest);
+
+        return result.Succeeded
+            ? Ok(result)
+            : BadRequest(result);
+    }
+
+    [HttpPost("check-in/{id}")]
+    public async Task<ActionResult<Result>> ReturnLibraryItem(int id)
+    {
+        var result = await _libraryItemService.ReturnItemAsync(id);
+
+        return result.Succeeded
+            ? Ok(result)
+            : BadRequest(result);
     }
 }
