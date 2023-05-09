@@ -96,4 +96,31 @@ internal sealed class LibraryItemService : ILibraryItemService
             libraryItemRecord.Type);
         return Result<LibraryItemResponse>.Success(response);
     }
+
+    public async Task<IEnumerable<LibraryItemResponse>> GetLibraryItemsAsync(int currentPage, int pageSize, bool sortByType)
+    {
+        var query = sortByType
+            ? _dbContext.LibraryItems.OrderBy(x => x.Type)
+            : _dbContext.LibraryItems.OrderBy(x => x.Category!.CategoryName);
+
+        var libraryItems = await query
+            .ThenBy(x => x.Id)
+            .Skip(currentPage * pageSize)
+            .Take(pageSize)
+            .Select(x => new LibraryItemResponse(
+                x.Id,
+                x.Category!.CategoryName,
+                x.Title,
+                x.Author,
+                x.Pages,
+                x.RunTimeMinutes,
+                x.IsBorrowable,
+                x.BorrowDate == null,
+                x.Borrower,
+                x.BorrowDate,
+                x.Type))
+            .ToListAsync();
+
+        return libraryItems;
+    }
 }

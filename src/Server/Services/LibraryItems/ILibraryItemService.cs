@@ -9,4 +9,6 @@ public interface ILibraryItemService
     Task<Result<LibraryItemResponse>> CreateDvdAsync(CreateDvdRequest createDvdRequest);
     Task<Result<LibraryItemResponse>> CreateAudioBookAsync(CreateAudioBookRequest createAudioBookRequest);
     Task<Result<LibraryItemResponse>> CreateReferenceBookAsync(CreateReferenceBookRequest createReferenceBookRequest);
+
+    Task<IEnumerable<LibraryItemResponse>> GetLibraryItemsAsync(int currentPage, int pageSize, bool sortByType);
 }

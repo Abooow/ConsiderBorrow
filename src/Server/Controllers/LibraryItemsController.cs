@@ -55,4 +55,11 @@ public sealed class LibraryItemsController : ControllerBase
             ? Ok(result)
             : BadRequest(result);
     }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<LibraryItemResponse>>> GetLibraryItems([FromQuery] int currentPage = 0, [FromQuery] int pageSize = 16, [FromQuery] bool sortByType = false)
+    {
+        var libraryItems = await _libraryItemService.GetLibraryItemsAsync(currentPage, pageSize, sortByType);
+        return Ok(libraryItems);
+    }
 }
