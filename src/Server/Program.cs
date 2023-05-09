@@ -12,6 +12,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(x => x.UseSqlServer(builder.
 
 // Services.
 builder.Services.AddTransient<ICategoryService, CategoryService>();
+builder.Services.AddTransient<ILibraryItemService, LibraryItemService>();
 
 var app = builder.Build();
 
