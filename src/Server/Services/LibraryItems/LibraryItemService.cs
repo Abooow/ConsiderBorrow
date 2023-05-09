@@ -186,4 +186,19 @@ internal sealed class LibraryItemService : ILibraryItemService
 
         return Result.Success();
     }
+
+    public async Task<Result> DeleteItemAsync(int itemId)
+    {
+        var record = await _dbContext.LibraryItems.FindAsync(itemId);
+        if (record is null)
+            return Result.Fail($"Could not find a library item with ID {itemId}");
+
+        if (record.Borrower is not null)
+            return Result.Fail("Cannot delete this library item. There is someone that is borrowing it.");
+
+        _dbContext.LibraryItems.Remove(record);
+        await _dbContext.SaveChangesAsync();
+
+        return Result.Success();
+    }
 }
