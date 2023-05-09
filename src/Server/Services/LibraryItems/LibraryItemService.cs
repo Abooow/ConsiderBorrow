@@ -1,5 +1,4 @@
 ﻿using ConsiderBorrow.Server.DataAccess;
-using ConsiderBorrow.Shared.Models.Categories;
 using ConsiderBorrow.Shared.Models.LibraryItems;
 using ConsiderBorrow.Shared.Results;
 using Microsoft.EntityFrameworkCore;
@@ -9,10 +8,12 @@ namespace ConsiderBorrow.Server.Services;
 internal sealed class LibraryItemService : ILibraryItemService
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly IAcronymGenerator _acronymGenerator;
 
-    public LibraryItemService(ApplicationDbContext dbContext)
+    public LibraryItemService(ApplicationDbContext dbContext, IAcronymGenerator acronymGenerator)
     {
         _dbContext = dbContext;
+        _acronymGenerator = acronymGenerator;
     }
 
     public Task<Result<LibraryItemResponse>> CreateBookAsync(CreateBookRequest createBookRequest)
@@ -94,7 +95,10 @@ internal sealed class LibraryItemService : ILibraryItemService
             HasBeenBorrowed: false,
             Borrower: null,
             BorrowDate: null,
-            libraryItemRecord.Type);
+            libraryItemRecord.Type)
+        {
+            TitleAcronym = _acronymGenerator.CreateAcronym(libraryItemRecord.Title)
+        };
         return Result<LibraryItemResponse>.Success(response);
     }
 
@@ -123,6 +127,12 @@ internal sealed class LibraryItemService : ILibraryItemService
                 x.BorrowDate,
                 x.Type))
             .ToListAsync();
+
+        // Generate an acronym based on title for every item. This can not be done as a SQL query if differed implementations is wanted.
+        foreach (var item in libraryItems)
+        {
+            item.TitleAcronym = _acronymGenerator.CreateAcronym(item.Title);
+        }
 
         return libraryItems;
     }

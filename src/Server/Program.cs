@@ -13,6 +13,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(x => x.UseSqlServer(builder.
 // Services.
 builder.Services.AddTransient<ICategoryService, CategoryService>();
 builder.Services.AddTransient<ILibraryItemService, LibraryItemService>();
+builder.Services.AddTransient<IAcronymGenerator, SimpleByWordsAcronymGenerator>();
 
 var app = builder.Build();
 

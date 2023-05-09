@@ -11,4 +11,7 @@ public sealed record LibraryItemResponse(
     bool HasBeenBorrowed,
     string? Borrower,
     DateTime? BorrowDate,
-    string Type);
+    string Type)
+{
+    public string TitleAcronym { get; set; } = default!;
+};
