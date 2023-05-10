@@ -32,7 +32,7 @@ internal sealed class EmployeeService : IEmployeeService
         {
             FirstName = createEmployeeRequest.FirstName,
             LastName = createEmployeeRequest.LastName,
-            Salary = createEmployeeRequest.SalaryRank * 1.5M,
+            Salary = SalaryCalculator.CalculateSalary(createEmployeeRequest.Role, createEmployeeRequest.SalaryRank),
             IsCEO = createEmployeeRequest.Role is EmployeeRole.CEO,
             IsManager = createEmployeeRequest.Role is EmployeeRole.Manager,
             ManagerId = createEmployeeRequest.ManagerId
