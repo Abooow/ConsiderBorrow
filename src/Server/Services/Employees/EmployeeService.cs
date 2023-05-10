@@ -125,6 +125,9 @@ internal sealed class EmployeeService : IEmployeeService
 
         if (updateEmployeeRequest.UpdateManager)
         {
+            if (record.Id == updateEmployeeRequest.ManagerId)
+                return Result.Fail("An employee cannot be their own manager.");
+
             var validationResult = await ValidateEmployeeRoleAndManagerRelationshipAsync(employeeRole, updateEmployeeRequest.ManagerId);
             if (!validationResult.Succeeded)
                 return validationResult;
