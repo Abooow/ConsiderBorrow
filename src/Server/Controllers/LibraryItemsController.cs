@@ -16,40 +16,10 @@ public sealed class LibraryItemsController : ControllerBase
         _libraryItemService = libraryItemService;
     }
 
-    [HttpPost("book")]
-    public async Task<ActionResult<Result<LibraryItemResponse>>> CreateBook(CreateBookRequest createBookRequest)
+    [HttpPost]
+    public async Task<ActionResult<Result<LibraryItemResponse>>> CreateLibraryItem(CreateLibraryItemRequest createLibraryItemRequest)
     {
-        var result = await _libraryItemService.CreateBookAsync(createBookRequest);
-
-        return result.Succeeded
-            ? Ok(result)
-            : BadRequest(result);
-    }
-
-    [HttpPost("dvd")]
-    public async Task<ActionResult<Result<LibraryItemResponse>>> CreateDvd(CreateDvdRequest createDvdRequest)
-    {
-        var result = await _libraryItemService.CreateDvdAsync(createDvdRequest);
-
-        return result.Succeeded
-            ? Ok(result)
-            : BadRequest(result);
-    }
-
-    [HttpPost("audio-book")]
-    public async Task<ActionResult<Result<LibraryItemResponse>>> CreateAudioBook(CreateAudioBookRequest createAudioBookRequest)
-    {
-        var result = await _libraryItemService.CreateAudioBookAsync(createAudioBookRequest);
-
-        return result.Succeeded
-            ? Ok(result)
-            : BadRequest(result);
-    }
-
-    [HttpPost("reference-book")]
-    public async Task<ActionResult<Result<LibraryItemResponse>>> CreateReferenceBook(CreateReferenceBookRequest createReferenceBookRequest)
-    {
-        var result = await _libraryItemService.CreateReferenceBookAsync(createReferenceBookRequest);
+        var result = await _libraryItemService.CreateLibraryItemAsync(createLibraryItemRequest);
 
         return result.Succeeded
             ? Ok(result)

@@ -18,70 +18,31 @@ internal sealed class LibraryItemService : ILibraryItemService
         _updateLibraryItemManager = updateLibraryItemManager;
     }
 
-    public Task<Result<LibraryItemResponse>> CreateBookAsync(CreateBookRequest createBookRequest)
-    {
-        var record = new LibraryItemRecord()
-        {
-            CategoryId = createBookRequest.CategoryId,
-            Title = createBookRequest.Title,
-            Author = createBookRequest.Author,
-            Pages = createBookRequest.Pages,
-            IsBorrowable = true,
-            Type = "Book"
-        };
-
-        return CreateLibraryItemAsync(record);
-    }
-
-    public Task<Result<LibraryItemResponse>> CreateDvdAsync(CreateDvdRequest createDvdRequest)
-    {
-        var record = new LibraryItemRecord()
-        {
-            CategoryId = createDvdRequest.CategoryId,
-            Title = createDvdRequest.Title,
-            RunTimeMinutes = createDvdRequest.RunTimeMinutes,
-            IsBorrowable = true,
-            Type = "DVD"
-        };
-
-        return CreateLibraryItemAsync(record);
-    }
-
-    public Task<Result<LibraryItemResponse>> CreateAudioBookAsync(CreateAudioBookRequest createAudioBookRequest)
-    {
-        var record = new LibraryItemRecord()
-        {
-            CategoryId = createAudioBookRequest.CategoryId,
-            Title = createAudioBookRequest.Title,
-            RunTimeMinutes = createAudioBookRequest.RunTimeMinutes,
-            IsBorrowable = true,
-            Type = "Audio Book"
-        };
-
-        return CreateLibraryItemAsync(record);
-    }
-
-    public Task<Result<LibraryItemResponse>> CreateReferenceBookAsync(CreateReferenceBookRequest createReferenceBookRequest)
-    {
-        var record = new LibraryItemRecord()
-        {
-            CategoryId = createReferenceBookRequest.CategoryId,
-            Title = createReferenceBookRequest.Title,
-            Author = createReferenceBookRequest.Author,
-            Pages = createReferenceBookRequest.Pages,
-            IsBorrowable = false,
-            Type = "Reference Book"
-        };
-
-        return CreateLibraryItemAsync(record);
-    }
-
-    private async Task<Result<LibraryItemResponse>> CreateLibraryItemAsync(LibraryItemRecord libraryItemRecord)
+    public async Task<Result<LibraryItemResponse>> CreateLibraryItemAsync(CreateLibraryItemRequest createLibraryItemRequest)
     {
         // Ensure category exists.
-        var category = await _dbContext.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == libraryItemRecord.CategoryId);
+        var category = await _dbContext.Categories.AsNoTracking().FirstOrDefaultAsync(x => x.Id == createLibraryItemRequest.CategoryId);
         if (category is null)
-            return Result<LibraryItemResponse>.Fail($"Could not find a category with ID {libraryItemRecord.CategoryId}");
+            return Result<LibraryItemResponse>.Fail($"Could not find a category with ID {createLibraryItemRequest.CategoryId}");
+
+        var libraryItemRecord = new LibraryItemRecord()
+        {
+            CategoryId = createLibraryItemRequest.CategoryId,
+            Title = createLibraryItemRequest.Title,
+            Type = createLibraryItemRequest.Type
+        };
+
+        var updateModel = new UpdateLibraryItemRequest()
+        {
+            Author = createLibraryItemRequest.Author,
+            Pages = createLibraryItemRequest.Pages,
+            RunTimeMinutes = createLibraryItemRequest.RunTimeMinutes,
+        };
+
+        // Let UpdateLibraryItemManager set remaining properties depending on type.
+        var updateResult = _updateLibraryItemManager.UpdateItem(libraryItemRecord.Type, libraryItemRecord, updateModel);
+        if (!updateResult.Succeeded)
+            return Result<LibraryItemResponse>.CopyOf(updateResult);
 
         _dbContext.LibraryItems.Add(libraryItemRecord);
         await _dbContext.SaveChangesAsync();
