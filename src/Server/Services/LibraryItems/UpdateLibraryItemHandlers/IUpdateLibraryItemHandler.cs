@@ -6,7 +6,7 @@ namespace ConsiderBorrow.Server.Services.LibraryItems.UpdateLibraryItemHandlers;
 
 internal interface IUpdateLibraryItemHandler
 {
-    public string HandleForType { get; }
+    string HandleForType { get; }
 
     Result HandleUpdate(LibraryItemRecord record, UpdateLibraryItemRequest updateLibraryItemRequest);
 }
