@@ -17,6 +17,8 @@ builder.Services.AddTransient<ILibraryItemService, LibraryItemService>();
 builder.Services.AddTransient<IAcronymGenerator, SimpleByWordsAcronymGenerator>();
 builder.Services.AddSingleton<IUpdateLibraryItemManager, UpdateLibraryItemManager>(x => new UpdateLibraryItemManager(typeof(Program).Assembly));
 
+builder.Services.AddTransient<IEmployeeService, EmployeeService>();
+
 // Custom model validation response.
 builder.Services.UseResultBasedValidationResponse();
 
