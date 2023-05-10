@@ -6,13 +6,14 @@ public interface IResult
 {
     bool Succeeded { get; }
     HttpStatusCode StatusCode { get; }
-    string? Message { get; }
+    string StatusCodeDescription { get; }
+    IEnumerable<string> Messages { get; }
 }
 
-public record Result(bool Succeeded, HttpStatusCode StatusCode, string? Message) : IResult
+public record Result(bool Succeeded, HttpStatusCode StatusCode, string StatusCodeDescription, IEnumerable<string> Messages) : IResult
 {
-    private static readonly Result successResult = new Result(true, HttpStatusCode.OK, null);
-    private static readonly Result failResult = new Result(false, HttpStatusCode.BadRequest, null);
+    private static readonly Result successResult = new Result(true, HttpStatusCode.OK, StatusCodeDescriptions.None, Array.Empty<string>());
+    private static readonly Result failResult = new Result(false, HttpStatusCode.BadRequest, StatusCodeDescriptions.None, Array.Empty<string>());
 
     public static Result Success()
     {
@@ -21,7 +22,7 @@ public record Result(bool Succeeded, HttpStatusCode StatusCode, string? Message)
 
     public static Result Success(string message)
     {
-        return successResult with { Message = message };
+        return successResult with { Messages = new string[] { message } };
     }
 
     public static Result Fail()
@@ -31,11 +32,16 @@ public record Result(bool Succeeded, HttpStatusCode StatusCode, string? Message)
 
     public static Result Fail(string message)
     {
-        return failResult with { Message = message };
+        return failResult with { Messages = new string[] { message } };
+    }
+
+    public static Result Fail(IEnumerable<string> messages)
+    {
+        return failResult with { Messages = messages };
     }
 
     public static Result CopyOf(Result copy)
     {
-        return new Result(copy.Succeeded, copy.StatusCode, copy.Message);
+        return new Result(copy.Succeeded, copy.StatusCode, copy.StatusCodeDescription, copy.Messages);
     }
 }

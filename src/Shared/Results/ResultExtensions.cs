@@ -23,4 +23,9 @@ public static partial class ResultExtensions
     {
         return result.WithStatusCode(HttpStatusCode.Unauthorized);
     }
+
+    public static Result WithDescription(this Result result, string description)
+    {
+        return result with { StatusCodeDescription = description };
+    }
 }

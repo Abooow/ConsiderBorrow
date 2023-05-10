@@ -24,7 +24,7 @@ internal sealed class ReferenceBook_UpdateLibraryItemHandler : IUpdateLibraryIte
         record.Pages ??= updateLibraryItemRequest.Pages;
 
         return errors.Any()
-            ? Result.Fail(string.Join(", ", errors))
+            ? Result.Fail(errors).WithDescription(StatusCodeDescriptions.ValidationError)
             : Result.Success();
     }
 }

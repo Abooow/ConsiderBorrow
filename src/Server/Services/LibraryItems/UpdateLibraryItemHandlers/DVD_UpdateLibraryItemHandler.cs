@@ -21,7 +21,7 @@ internal sealed class DVD_UpdateLibraryItemHandler : IUpdateLibraryItemHandler
         record.RunTimeMinutes ??= updateLibraryItemRequest.RunTimeMinutes;
 
         return errors.Any()
-            ? Result.Fail(string.Join(", ", errors))
+            ? Result.Fail(errors).WithDescription(StatusCodeDescriptions.ValidationError)
             : Result.Success();
     }
 }
