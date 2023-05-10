@@ -17,12 +17,28 @@ public sealed class EmployeesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<Result>> CreateEmployee(CreateEmployeeRequest createEmployeeRequest)
+    public async Task<ActionResult<Result<EmployeeResponse>>> CreateEmployee(CreateEmployeeRequest createEmployeeRequest)
     {
         var result = await _employeeService.CreateEmployeeAsync(createEmployeeRequest);
 
         return result.Succeeded
             ? Ok(result)
             : BadRequest(result);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Result<EmployeeResponse>>> GetEmployee(int id)
+    {
+        var result = await _employeeService.GetEmployeeAsync(id);
+
+        return result.Succeeded
+            ? Ok(result)
+            : BadRequest(result);
+    }
+
+    [HttpGet]
+    public async Task<IEnumerable<EmployeeResponse>> GetEmployees()
+    {
+        return await _employeeService.GetEmployeesAsync();
     }
 }

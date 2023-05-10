@@ -29,8 +29,7 @@ public sealed class CategoriesController : ControllerBase
     [HttpGet]
     public async Task<IEnumerable<CategoryResponse>> GetCategories()
     {
-        var categories = await _categoryService.GetCategoriesAsync();
-        return categories;
+        return await _categoryService.GetCategoriesAsync();
     }
 
     [HttpPatch]

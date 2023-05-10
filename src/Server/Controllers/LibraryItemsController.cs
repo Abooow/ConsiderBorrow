@@ -39,8 +39,7 @@ public sealed class LibraryItemsController : ControllerBase
     [HttpGet]
     public async Task<IEnumerable<LibraryItemResponse>> GetLibraryItems([FromQuery] int currentPage = 0, [FromQuery] int pageSize = 16, [FromQuery] bool sortByType = false)
     {
-        var libraryItems = await _libraryItemService.GetLibraryItemsAsync(currentPage, pageSize, sortByType);
-        return libraryItems;
+        return await _libraryItemService.GetLibraryItemsAsync(currentPage, pageSize, sortByType);
     }
 
     [HttpPost("check-out/{id}")]

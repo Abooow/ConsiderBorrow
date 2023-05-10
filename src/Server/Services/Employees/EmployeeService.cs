@@ -1,4 +1,5 @@
-﻿using ConsiderBorrow.Server.DataAccess;
+﻿using Azure;
+using ConsiderBorrow.Server.DataAccess;
 using ConsiderBorrow.Shared.Models.Employees;
 using ConsiderBorrow.Shared.Results;
 using Microsoft.EntityFrameworkCore;
@@ -50,6 +51,46 @@ internal sealed class EmployeeService : IEmployeeService
             createEmployeeRequest.Role,
             employeeRecord.ManagerId);
         return Result<EmployeeResponse>.Success(response);
+    }
+
+    public async Task<Result<EmployeeResponse>> GetEmployeeAsync(int id)
+    {
+        var employee = await _dbContext
+            .Employees
+            .Where(x => x.Id == id)
+            .Select(x => new EmployeeResponse(
+                x.Id,
+                x.FirstName,
+                x.LastName,
+                $"{x.FirstName} {x.LastName}",
+                x.Salary,
+                x.IsCEO ? EmployeeRole.CEO : x.IsManager ? EmployeeRole.Manager : EmployeeRole.Employee,
+                x.ManagerId))
+            .FirstOrDefaultAsync();
+
+        return employee is null
+            ? Result<EmployeeResponse>.Fail($"Could not find an employee with ID {id}")
+            : Result<EmployeeResponse>.Success(employee);
+    }
+
+    public async Task<IEnumerable<EmployeeResponse>> GetEmployeesAsync()
+    {
+        var employees = await _dbContext
+            .Employees
+            .OrderByDescending(x => x.IsCEO)
+            .ThenByDescending(x => x.IsManager)
+            .ThenBy(x => x.Id)
+            .Select(x => new EmployeeResponse(
+                x.Id,
+                x.FirstName,
+                x.LastName,
+                $"{x.FirstName} {x.LastName}",
+                x.Salary,
+                x.IsCEO ? EmployeeRole.CEO : x.IsManager ? EmployeeRole.Manager : EmployeeRole.Employee,
+                x.ManagerId))
+            .ToListAsync();
+
+        return employees;
     }
 
     private async Task<Result> ValidateEmployeeRoleAndManagerAsync(EmployeeRole role, int? managerId)
