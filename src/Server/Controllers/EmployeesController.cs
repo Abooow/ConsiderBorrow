@@ -42,6 +42,16 @@ public sealed class EmployeesController : ControllerBase
         return await _employeeService.GetEmployeesAsync();
     }
 
+    [HttpPatch("{id}")]
+    public async Task<ActionResult<Result<EmployeeResponse>>> UpdateEmployee(int id, UpdateEmployeeRequest updateEmployeeRequest)
+    {
+        var result = await _employeeService.UpdateEmployeeAsync(id, updateEmployeeRequest);
+
+        return result.Succeeded
+            ? Ok(result)
+            : BadRequest(result);
+    }
+
     [HttpDelete("{id}")]
     public async Task<ActionResult<Result<EmployeeResponse>>> DeleteEmployee(int id)
     {

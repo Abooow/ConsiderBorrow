@@ -17,14 +17,15 @@ internal sealed class EmployeeService : IEmployeeService
     public async Task<Result<EmployeeResponse>> CreateEmployeeAsync(CreateEmployeeRequest createEmployeeRequest)
     {
         // Validate Role value.
-        if (createEmployeeRequest.Role is < EmployeeRole.Employee or > EmployeeRole.CEO)
-            return Result<EmployeeResponse>.Fail($"{createEmployeeRequest.Role} is not a valid value for Role. Only Employee (0), Manager (1) and CEO (2) is allowed.").WithDescription(StatusCodeDescriptions.ValidationError);
+        var roleValidationResult = ValidateEmployeeRole(createEmployeeRequest.Role);
+        if (!roleValidationResult.Succeeded)
+            return Result<EmployeeResponse>.CopyOf(roleValidationResult);
 
         // Ensure only one CEO can be present at a time.
         if (createEmployeeRequest.Role is EmployeeRole.CEO && await _dbContext.Employees.AnyAsync(x => x.IsCEO))
             return Result<EmployeeResponse>.Fail("There is already a CEO registered in the system.");
 
-        var validationResult = await ValidateEmployeeRoleAndManagerAsync(createEmployeeRequest.Role, createEmployeeRequest.ManagerId);
+        var validationResult = await ValidateEmployeeRoleAndManagerRelationshipAsync(createEmployeeRequest.Role, createEmployeeRequest.ManagerId);
         if (!validationResult.Succeeded)
             return Result<EmployeeResponse>.CopyOf(validationResult);
 
@@ -95,6 +96,50 @@ internal sealed class EmployeeService : IEmployeeService
         return employees;
     }
 
+    public async Task<Result> UpdateEmployeeAsync(int id, UpdateEmployeeRequest updateEmployeeRequest)
+    {
+        var record = await _dbContext.Employees.FindAsync(id);
+        if (record is null)
+            return Result.Fail($"Could not find an employee with ID {id}");
+
+        record.FirstName = updateEmployeeRequest.FirstName ?? record.FirstName;
+        record.LastName = updateEmployeeRequest.LastName ?? record.LastName;
+
+        var employeeRole = record.IsCEO ? EmployeeRole.CEO : record.IsManager ? EmployeeRole.Manager : EmployeeRole.Employee;
+        var salaryRank = updateEmployeeRequest.SalaryRank ?? record.Salary / SalaryCalculator.GetSalaryCoefficient(employeeRole);
+
+        if (updateEmployeeRequest.Role is not null)
+        {
+            var roleValidationResult = ValidateEmployeeRole(updateEmployeeRequest.Role.Value);
+            if (!roleValidationResult.Succeeded)
+                return roleValidationResult;
+
+            // Ensure only one CEO can be present at a time.
+            if (updateEmployeeRequest.Role is EmployeeRole.CEO && await _dbContext.Employees.AnyAsync(x => x.IsCEO))
+                return Result.Fail("There is already a CEO registered in the system.");
+
+            employeeRole = updateEmployeeRequest.Role.Value;
+            record.IsCEO = employeeRole is EmployeeRole.CEO;
+            record.IsManager = employeeRole is EmployeeRole.Manager;
+        }
+
+        if (updateEmployeeRequest.UpdateManager)
+        {
+            var validationResult = await ValidateEmployeeRoleAndManagerRelationshipAsync(employeeRole, updateEmployeeRequest.ManagerId);
+            if (!validationResult.Succeeded)
+                return validationResult;
+
+            record.ManagerId = updateEmployeeRequest.ManagerId;
+        }
+
+        record.Salary = SalaryCalculator.CalculateSalary(employeeRole, salaryRank);
+
+        _dbContext.Employees.Update(record);
+        await _dbContext.SaveChangesAsync();
+
+        return Result.Success();
+    }
+
     public async Task<Result> DeleteEmployeeAsync(int id)
     {
         var record = await _dbContext.Employees.FindAsync(id);
@@ -114,7 +159,15 @@ internal sealed class EmployeeService : IEmployeeService
         return Result.Success();
     }
 
-    private async Task<Result> ValidateEmployeeRoleAndManagerAsync(EmployeeRole role, int? managerId)
+    private static Result ValidateEmployeeRole(EmployeeRole role)
+    {
+        if (role is < EmployeeRole.Employee or > EmployeeRole.CEO)
+            return Result.Fail($"{role} is not a valid value for Role. Only Employee (0), Manager (1) and CEO (2) is allowed.").WithDescription(StatusCodeDescriptions.ValidationError);
+
+        return Result.Success();
+    }
+
+    private async Task<Result> ValidateEmployeeRoleAndManagerRelationshipAsync(EmployeeRole role, int? managerId)
     {
         // Ensure no one can be manager of the CEO.
         if (role is EmployeeRole.CEO && managerId is not null)
@@ -131,11 +184,11 @@ internal sealed class EmployeeService : IEmployeeService
         if (managerRecord is null)
             return Result.Fail($"Could not set the manager because no manager with ID {managerId} exists.");
 
-        // When managerRecord is a regular employee.
+        // Regular employees must have a manager defined.
         if (!managerRecord.IsCEO && !managerRecord.IsManager)
             return Result.Fail("Can not set a regular employee as a manager.");
 
-        // When managerRecord is a CEO.
+        // CEO can not be a manager for Regular employees.
         if (role is EmployeeRole.Employee && managerRecord.IsCEO)
             return Result.Fail("Can not set the CEO as a manager for an regular employee.");
 
