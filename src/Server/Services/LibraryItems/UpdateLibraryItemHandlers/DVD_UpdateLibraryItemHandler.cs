@@ -6,7 +6,7 @@ namespace ConsiderBorrow.Server.Services.LibraryItems.UpdateLibraryItemHandlers;
 
 internal sealed class DVD_UpdateLibraryItemHandler : IUpdateLibraryItemHandler
 {
-    public string HandleForType => "DVD";
+    public string HandleForType => LibraryItemTypes.DVD;
 
     public Result HandleUpdate(LibraryItemRecord record, UpdateLibraryItemRequest updateLibraryItemRequest)
     {

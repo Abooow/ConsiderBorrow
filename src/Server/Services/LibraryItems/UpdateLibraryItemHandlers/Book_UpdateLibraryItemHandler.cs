@@ -6,7 +6,7 @@ namespace ConsiderBorrow.Server.Services.LibraryItems.UpdateLibraryItemHandlers;
 
 internal sealed class Book_UpdateLibraryItemHandler : IUpdateLibraryItemHandler
 {
-    public string HandleForType => "Book";
+    public string HandleForType => LibraryItemTypes.Book;
 
     public Result HandleUpdate(LibraryItemRecord record, UpdateLibraryItemRequest updateLibraryItemRequest)
     {
