@@ -12,8 +12,10 @@ builder.Services.AddDbContext<ApplicationDbContext>(x => x.UseSqlServer(builder.
 
 // Services.
 builder.Services.AddTransient<ICategoryService, CategoryService>();
+
 builder.Services.AddTransient<ILibraryItemService, LibraryItemService>();
 builder.Services.AddTransient<IAcronymGenerator, SimpleByWordsAcronymGenerator>();
+builder.Services.AddSingleton<IUpdateLibraryItemManager, UpdateLibraryItemManager>(x => new UpdateLibraryItemManager(typeof(Program).Assembly));
 
 var app = builder.Build();
 

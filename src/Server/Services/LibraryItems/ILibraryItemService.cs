@@ -12,8 +12,9 @@ public interface ILibraryItemService
 
     Task<IEnumerable<LibraryItemResponse>> GetLibraryItemsAsync(int currentPage, int pageSize, bool sortByType);
 
-    Task<Result> BorrowItemAsync(int itemId, BorrowLibraryItemRequest borrowLibraryItemRequest);
-    Task<Result> ReturnItemAsync(int itemId);
+    Task<Result> BorrowItemAsync(int id, BorrowLibraryItemRequest borrowLibraryItemRequest);
+    Task<Result> ReturnItemAsync(int id);
 
-    Task<Result> DeleteItemAsync(int itemId);
+    Task<Result> UpdateItemAsync(int id, UpdateLibraryItemRequest updateLibraryItemRequest);
+    Task<Result> DeleteItemAsync(int id);
 }

@@ -83,6 +83,16 @@ public sealed class LibraryItemsController : ControllerBase
             : BadRequest(result);
     }
 
+    [HttpPatch("{id}")]
+    public async Task<ActionResult<Result>> UpdateItem(int id, UpdateLibraryItemRequest updateLibraryItemRequest)
+    {
+        var result = await _libraryItemService.UpdateItemAsync(id, updateLibraryItemRequest);
+
+        return result.Succeeded
+            ? Ok(result)
+            : BadRequest(result);
+    }
+
     [HttpDelete("{id}")]
     public async Task<ActionResult<Result>> DeleteItem(int id)
     {

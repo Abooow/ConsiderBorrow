@@ -9,11 +9,13 @@ internal sealed class LibraryItemService : ILibraryItemService
 {
     private readonly ApplicationDbContext _dbContext;
     private readonly IAcronymGenerator _acronymGenerator;
+    private readonly IUpdateLibraryItemManager _updateLibraryItemManager;
 
-    public LibraryItemService(ApplicationDbContext dbContext, IAcronymGenerator acronymGenerator)
+    public LibraryItemService(ApplicationDbContext dbContext, IAcronymGenerator acronymGenerator, IUpdateLibraryItemManager updateLibraryItemManager)
     {
         _dbContext = dbContext;
         _acronymGenerator = acronymGenerator;
+        _updateLibraryItemManager = updateLibraryItemManager;
     }
 
     public Task<Result<LibraryItemResponse>> CreateBookAsync(CreateBookRequest createBookRequest)
@@ -137,11 +139,11 @@ internal sealed class LibraryItemService : ILibraryItemService
         return libraryItems;
     }
 
-    public async Task<Result> BorrowItemAsync(int itemId, BorrowLibraryItemRequest borrowLibraryItemRequest)
+    public async Task<Result> BorrowItemAsync(int id, BorrowLibraryItemRequest borrowLibraryItemRequest)
     {
-        var record = await _dbContext.LibraryItems.FindAsync(itemId);
+        var record = await _dbContext.LibraryItems.FindAsync(id);
         if (record is null)
-            return Result.Fail($"Could not find a library item with ID {itemId}");
+            return Result.Fail($"Could not find a library item with ID {id}");
 
         // Check if the customer can borrow this item.
         if (!record.IsBorrowable)
@@ -162,11 +164,11 @@ internal sealed class LibraryItemService : ILibraryItemService
         return Result.Success();
     }
 
-    public async Task<Result> ReturnItemAsync(int itemId)
+    public async Task<Result> ReturnItemAsync(int id)
     {
-        var record = await _dbContext.LibraryItems.FindAsync(itemId);
+        var record = await _dbContext.LibraryItems.FindAsync(id);
         if (record is null)
-            return Result.Fail($"Could not find a library item with ID {itemId}");
+            return Result.Fail($"Could not find a library item with ID {id}");
 
         // Check if item can be returned.
         if (!record.IsBorrowable)
@@ -187,11 +189,48 @@ internal sealed class LibraryItemService : ILibraryItemService
         return Result.Success();
     }
 
-    public async Task<Result> DeleteItemAsync(int itemId)
+    public async Task<Result> UpdateItemAsync(int id, UpdateLibraryItemRequest updateLibraryItemRequest)
     {
-        var record = await _dbContext.LibraryItems.FindAsync(itemId);
+        var record = await _dbContext.LibraryItems.FindAsync(id);
         if (record is null)
-            return Result.Fail($"Could not find a library item with ID {itemId}");
+            return Result.Fail($"Could not find a library item with ID {id}");
+
+        // Don't allow updates if someone is borrowing it.
+        if (record.Borrower is not null)
+            return Result.Fail("Cannot update this library item. There is someone that is borrowing it.");
+
+        // Try update category.
+        if (updateLibraryItemRequest.CategoryId is not null)
+        {
+            bool categoryExists = await _dbContext.Categories.AnyAsync(x => x.Id == updateLibraryItemRequest.CategoryId);
+            if (!categoryExists)
+                return Result.Fail($"Could not find a category with ID {id}");
+
+            record.CategoryId = updateLibraryItemRequest.CategoryId.Value;
+        }
+
+        // Try update title.
+        if (updateLibraryItemRequest.Title is not null)
+            record.Title = updateLibraryItemRequest.Title;
+
+        // Let UpdateLibraryItemManager update remaining properties depending on type.
+        var updateResult = _updateLibraryItemManager.UpdateItem(updateLibraryItemRequest.Type ?? record.Type, record, updateLibraryItemRequest);
+        if (!updateResult.Succeeded)
+            return updateResult;
+
+        record.Type = updateLibraryItemRequest.Type ?? record.Type;
+
+        _dbContext.LibraryItems.Update(record);
+        await _dbContext.SaveChangesAsync();
+
+        return Result.Success();
+    }
+
+    public async Task<Result> DeleteItemAsync(int id)
+    {
+        var record = await _dbContext.LibraryItems.FindAsync(id);
+        if (record is null)
+            return Result.Fail($"Could not find a library item with ID {id}");
 
         if (record.Borrower is not null)
             return Result.Fail("Cannot delete this library item. There is someone that is borrowing it.");
