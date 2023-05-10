@@ -26,4 +26,6 @@ internal sealed class EmployeeRecord
     public int? ManagerId { get; set; }
 
     public EmployeeRecord? Manager { get; set; }
+
+    public ICollection<EmployeeRecord> ManagedEmployees { get; set; } = new HashSet<EmployeeRecord>();
 }

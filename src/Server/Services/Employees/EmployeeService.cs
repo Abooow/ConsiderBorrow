@@ -1,5 +1,4 @@
-﻿using Azure;
-using ConsiderBorrow.Server.DataAccess;
+﻿using ConsiderBorrow.Server.DataAccess;
 using ConsiderBorrow.Shared.Models.Employees;
 using ConsiderBorrow.Shared.Results;
 using Microsoft.EntityFrameworkCore;
@@ -49,7 +48,8 @@ internal sealed class EmployeeService : IEmployeeService
             $"{employeeRecord.FirstName} {employeeRecord.LastName}",
             employeeRecord.Salary,
             createEmployeeRequest.Role,
-            employeeRecord.ManagerId);
+            employeeRecord.ManagerId,
+            Array.Empty<int>());
         return Result<EmployeeResponse>.Success(response);
     }
 
@@ -65,7 +65,8 @@ internal sealed class EmployeeService : IEmployeeService
                 $"{x.FirstName} {x.LastName}",
                 x.Salary,
                 x.IsCEO ? EmployeeRole.CEO : x.IsManager ? EmployeeRole.Manager : EmployeeRole.Employee,
-                x.ManagerId))
+                x.ManagerId,
+                x.ManagedEmployees.Select(x => x.Id)))
             .FirstOrDefaultAsync();
 
         return employee is null
@@ -87,7 +88,8 @@ internal sealed class EmployeeService : IEmployeeService
                 $"{x.FirstName} {x.LastName}",
                 x.Salary,
                 x.IsCEO ? EmployeeRole.CEO : x.IsManager ? EmployeeRole.Manager : EmployeeRole.Employee,
-                x.ManagerId))
+                x.ManagerId,
+                x.ManagedEmployees.Select(x => x.Id)))
             .ToListAsync();
 
         return employees;

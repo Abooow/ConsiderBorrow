@@ -12,4 +12,11 @@ internal sealed class ApplicationDbContext : DbContext
     : base(options)
     {
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<EmployeeRecord>()
+            .HasOne(x => x.Manager)
+            .WithMany(x => x.ManagedEmployees);
+    }
 }
