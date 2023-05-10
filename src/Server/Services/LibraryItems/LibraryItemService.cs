@@ -89,6 +89,7 @@ internal sealed class LibraryItemService : ILibraryItemService
         var response = new LibraryItemResponse(
             libraryItemRecord.Id,
             category.CategoryName,
+            category.Id,
             libraryItemRecord.Title,
             libraryItemRecord.Author,
             libraryItemRecord.Pages,
@@ -102,6 +103,33 @@ internal sealed class LibraryItemService : ILibraryItemService
             TitleAcronym = _acronymGenerator.CreateAcronym(libraryItemRecord.Title)
         };
         return Result<LibraryItemResponse>.Success(response);
+    }
+
+    public async Task<Result<LibraryItemResponse>> GetLibraryItemAsync(int id)
+    {
+        var libraryItem = await _dbContext.LibraryItems
+            .Where(x => x.Id == id)
+            .Select(x => new LibraryItemResponse(
+                x.Id,
+                x.Category!.CategoryName,
+                x.CategoryId,
+                x.Title,
+                x.Author,
+                x.Pages,
+                x.RunTimeMinutes,
+                x.IsBorrowable,
+                x.Borrower != null,
+                x.Borrower,
+                x.BorrowDate,
+                x.Type))
+            .FirstOrDefaultAsync();
+
+        if (libraryItem is null)
+            return Result<LibraryItemResponse>.Fail($"Could not find a library item with ID {id}");
+
+        libraryItem.TitleAcronym = _acronymGenerator.CreateAcronym(libraryItem.Title);
+
+        return Result<LibraryItemResponse>.Success(libraryItem);
     }
 
     public async Task<IEnumerable<LibraryItemResponse>> GetLibraryItemsAsync(int currentPage, int pageSize, bool sortByType)
@@ -119,6 +147,7 @@ internal sealed class LibraryItemService : ILibraryItemService
             .Select(x => new LibraryItemResponse(
                 x.Id,
                 x.Category!.CategoryName,
+                x.CategoryId,
                 x.Title,
                 x.Author,
                 x.Pages,

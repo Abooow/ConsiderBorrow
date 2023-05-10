@@ -56,6 +56,16 @@ public sealed class LibraryItemsController : ControllerBase
             : BadRequest(result);
     }
 
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Result<LibraryItemResponse>>> GetLibraryItems(int id)
+    {
+        var result = await _libraryItemService.GetLibraryItemAsync(id);
+
+        return result.Succeeded
+            ? Ok(result)
+            : BadRequest(result);
+    }
+
     [HttpGet]
     public async Task<IEnumerable<LibraryItemResponse>> GetLibraryItems([FromQuery] int currentPage = 0, [FromQuery] int pageSize = 16, [FromQuery] bool sortByType = false)
     {

@@ -3,6 +3,7 @@
 public sealed record LibraryItemResponse(
     int Id,
     string Category,
+    int CategoryId,
     string Title,
     string? Author,
     int? Pages,

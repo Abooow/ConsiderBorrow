@@ -10,6 +10,7 @@ public interface ILibraryItemService
     Task<Result<LibraryItemResponse>> CreateAudioBookAsync(CreateAudioBookRequest createAudioBookRequest);
     Task<Result<LibraryItemResponse>> CreateReferenceBookAsync(CreateReferenceBookRequest createReferenceBookRequest);
 
+    Task<Result<LibraryItemResponse>> GetLibraryItemAsync(int id);
     Task<IEnumerable<LibraryItemResponse>> GetLibraryItemsAsync(int currentPage, int pageSize, bool sortByType);
 
     Task<Result> BorrowItemAsync(int id, BorrowLibraryItemRequest borrowLibraryItemRequest);
