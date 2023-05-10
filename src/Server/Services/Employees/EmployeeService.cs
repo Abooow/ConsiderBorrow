@@ -93,6 +93,25 @@ internal sealed class EmployeeService : IEmployeeService
         return employees;
     }
 
+    public async Task<Result> DeleteEmployeeAsync(int id)
+    {
+        var record = await _dbContext.Employees.FindAsync(id);
+        if (record is null)
+            return Result.Fail($"Could not find an employee with ID {id}");
+
+        if (record.IsCEO || record.IsManager)
+        {
+            bool isManagingOthers = await _dbContext.Employees.AnyAsync(x => x.ManagerId == id);
+            if (isManagingOthers)
+                return Result.Fail("Cannot delete this employee. This employee is currently managing other employees.");
+        }
+
+        _dbContext.Employees.Remove(record);
+        await _dbContext.SaveChangesAsync();
+
+        return Result.Success();
+    }
+
     private async Task<Result> ValidateEmployeeRoleAndManagerAsync(EmployeeRole role, int? managerId)
     {
         // Ensure no one can be manager of the CEO.
