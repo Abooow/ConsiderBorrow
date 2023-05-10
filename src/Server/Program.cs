@@ -17,6 +17,9 @@ builder.Services.AddTransient<ILibraryItemService, LibraryItemService>();
 builder.Services.AddTransient<IAcronymGenerator, SimpleByWordsAcronymGenerator>();
 builder.Services.AddSingleton<IUpdateLibraryItemManager, UpdateLibraryItemManager>(x => new UpdateLibraryItemManager(typeof(Program).Assembly));
 
+// Custom model validation response.
+builder.Services.UseResultBasedValidationResponse();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
