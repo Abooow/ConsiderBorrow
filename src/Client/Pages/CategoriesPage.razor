@@ -1,7 +1,55 @@
 ﻿@page "/categories"
+@using ConsiderBorrow.Shared.Models.Categories;
+@inject ICategoryFacade CategoryFacade
+@inject IDialogService DialogService
 
-<MudText Typo="Typo.h1">TBA</MudText>
+<PageTitle>Categories</PageTitle>
+
+@if (categories is null)
+{
+    <div class="h-100 d-flex justify-center align-center">
+        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+    </div>
+}
+else if (categories.Count == 0)
+{
+    <div class="h-100 d-flex justify-center align-center">
+        <div class="d-flex flex-column justify-center">
+            <MudText Typo="Typo.h4" Class="mb-4">No Items To Display</MudText>
+            <MudButton  Color="Color.Secondary" Variant="Variant.Outlined">Add New</MudButton>
+        </div>
+    </div>
+}
+else
+{
+    <div class="pa-12">
+        <MudSimpleTable>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var category in categories)
+                {
+                    <tr>
+                        <td>@category.Id</td>
+                        <td>@category.Name</td>
+                    </tr>
+                }
+            </tbody>
+        </MudSimpleTable>
+    </div>
+}
 
 @code {
+    private List<CategoryResponse>? categories;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var existingCategories = await CategoryFacade.GetCategoriesAsync();
+        categories = new List<CategoryResponse>(existingCategories);
+    }
 }

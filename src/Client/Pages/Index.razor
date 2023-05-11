@@ -3,7 +3,7 @@
 @inject ILibraryItemFacade LibraryItemFacade
 @inject IDialogService DialogService
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Inventory</PageTitle>
 
 @if (libraryItems is null)
 {
@@ -14,7 +14,10 @@
 else if (libraryItems.Count == 0)
 {
     <div class="h-100 d-flex justify-center align-center">
-        <MudText Typo="Typo.h4">No Items To Display</MudText>
+        <div class="d-flex flex-column justify-center">
+            <MudText Typo="Typo.h4" Class="mb-4">No Items To Display</MudText>
+            <MudButton OnClick="CreateNewLibraryItem" Color="Color.Secondary" Variant="Variant.Outlined">Add New</MudButton>
+        </div>
     </div>
 }
 else
@@ -66,6 +69,7 @@ else
             if (_sortType == value)
                 return;
 
+            Console.WriteLine("Update sort");
             _sortType = value;
             InvokeAsync(ResetLoadedItems);
         }
@@ -104,11 +108,19 @@ else
     private async Task CreateNewLibraryItem()
     {
         var dialogResult = await DialogService.Show<CreateNewLibraryItemDialog>("Create Library Item").Result;
-        if (dialogResult.Canceled)
+        if (dialogResult.Canceled || dialogResult.Data is null)
             return;
 
-        libraryItemsIsDirty = dialogResult.Data is not null;
-        canLoadMoreItems |= libraryItemsIsDirty;
+        if (libraryItems!.Count == 0)
+        {
+            libraryItemsIsDirty = false;
+            libraryItems.Add((LibraryItemResponse)dialogResult.Data);
+        }
+        else
+        {
+            libraryItemsIsDirty = true;
+            canLoadMoreItems |= libraryItemsIsDirty;
+        }
     }
 
     private void HandleOnItemUpdated(LibraryItemUpdated libraryItemUpdated)
