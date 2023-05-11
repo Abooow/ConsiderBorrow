@@ -61,8 +61,13 @@
     </DialogContent>
 
     <DialogActions>
-        <MudButton Variant="Variant.Filled" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Size="Size.Small" Disabled="!isValid || Item.HasBeenBorrowed" OnClick="OnValidSubmit">Update</MudButton>
+        <div class="flex-1 d-flex justify-space-between">
+            <MudButton Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small" Disabled="Item.HasBeenBorrowed" OnClick="DeleteItem">Delete</MudButton>
+            <div>
+                <MudButton Variant="Variant.Filled" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>
+                <MudButton Variant="Variant.Filled" Class="ml-2" Color="Color.Primary" ButtonType="ButtonType.Submit" Size="Size.Small" Disabled="!isValid || Item.HasBeenBorrowed" OnClick="OnValidSubmit">Update</MudButton>
+            </div>
+        </div>
     </DialogActions>
 </MudDialog>
 
@@ -72,6 +77,9 @@
 
     [Parameter]
     public required LibraryItemResponse Item { get; set; }
+
+    [Parameter]
+    public EventCallback<LibraryItemResponse> OnItemDeleted { get; set; }
 
     private bool isValid = false;
     private UpdateLibraryItemRequest? updateLibraryItemRequest;
@@ -104,6 +112,20 @@
 
         Snackbar.Add("Updated Library Item.", Severity.Success);
         MudDialog.Close(result.Data!);
+    }
+
+    private async Task DeleteItem()
+    {
+        var result = await LibraryItemFacade.DeleteItemAsync(Item.Id);
+        if (!result.Succeeded)
+        {
+            Snackbar.Add(string.Join(", ", result.Messages), Severity.Error);
+            return;
+        }
+
+        Snackbar.Add("Deleted Item.", Severity.Success);
+        await OnItemDeleted.InvokeAsync(Item);
+        MudDialog.Close();
     }
 
     private void Cancel() => MudDialog.Cancel();

@@ -62,6 +62,9 @@
     [Parameter]
     public EventCallback<LibraryItemUpdated> OnItemUpdated { get; set; }
 
+    [Parameter]
+    public EventCallback<LibraryItemResponse> OnItemDeleted { get; set; }
+
     private async Task CheckOutItem()
     {
         var parameters = new DialogParameters();
@@ -90,9 +93,10 @@
     {
         var parameters = new DialogParameters();
         parameters.Add(nameof(EditLibraryItemDialog.Item), Item);
+        parameters.Add(nameof(EditLibraryItemDialog.OnItemDeleted), OnItemDeleted);
 
         var dialogResult = await DialogService.Show<EditLibraryItemDialog>("Edit Item", parameters).Result;
-        if (dialogResult.Canceled)
+        if (dialogResult.Canceled || dialogResult.Data is null)
             return;
 
         await OnItemUpdated.InvokeAsync(new LibraryItemUpdated(Item, (LibraryItemResponse)dialogResult.Data));

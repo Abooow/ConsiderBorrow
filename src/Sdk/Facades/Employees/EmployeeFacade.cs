@@ -37,8 +37,9 @@ public sealed class EmployeeFacade : IEmployeeFacade
         return await response.ToResultAsync<EmployeeResponse>();
     }
 
-    public Task<Result> DeleteEmployeeAsync(int id)
+    public async Task<Result> DeleteEmployeeAsync(int id)
     {
-        return _httpClient.DeleteFromJsonAsync<Result>($"{baseUrl}/{id}")!;
+        var response = await _httpClient.DeleteAsync($"{baseUrl}/{id}")!;
+        return await response.ToResultAsync();
     }
 }

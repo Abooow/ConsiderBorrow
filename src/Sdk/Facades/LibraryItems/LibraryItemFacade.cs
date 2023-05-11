@@ -49,8 +49,9 @@ public sealed class LibraryItemFacade : ILibraryItemFacade
         return await response.ToResultAsync<LibraryItemResponse>();
     }
 
-    public Task<Result> DeleteItemAsync(int id)
+    public async Task<Result> DeleteItemAsync(int id)
     {
-        return _httpClient.DeleteFromJsonAsync<Result>($"{baseUrl}/{id}")!;
+        var response = await _httpClient.DeleteAsync($"{baseUrl}/{id}")!;
+        return await response.ToResultAsync();
     }
 }

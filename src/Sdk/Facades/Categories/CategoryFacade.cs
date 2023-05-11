@@ -32,8 +32,9 @@ public sealed class CategoryFacade : ICategoryFacade
         return await response.ToResultAsync<CategoryResponse>();
     }
 
-    public Task<Result> DeleteCategoryAsync(int id)
+    public async Task<Result> DeleteCategoryAsync(int id)
     {
-        return _httpClient.DeleteFromJsonAsync<Result>($"{baseUrl}/{id}")!;
+        var response = await _httpClient.DeleteAsync($"{baseUrl}/{id}")!;
+        return await response.ToResultAsync();
     }
 }

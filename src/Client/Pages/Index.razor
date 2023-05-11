@@ -20,9 +20,9 @@ else if (libraryItems.Count == 0)
 else
 {
     <div class="pa-12">
-        @if (hasCreatedNewItem)
+        @if (libraryItemsIsDirty)
         {
-            <MudAlert Class="mb-6" Severity="Severity.Warning">A new item has been created. Please refresh the page to see the updated content.</MudAlert>
+            <MudAlert Class="mb-6" Severity="Severity.Warning">A new item has been created or removed. Please refresh the page to see the updated content.</MudAlert>
         }
 
         <div class="d-flex justify-space-between mb-6">
@@ -37,7 +37,7 @@ else
         <div class="gap-4 mb-12" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
             @foreach (var item in libraryItems)
             {
-                <LibraryItemCard Item="item" OnItemUpdated="HandleOnItemUpdated" />
+                <LibraryItemCard Item="item" OnItemUpdated="HandleOnItemUpdated" OnItemDeleted="HandleOnItemDeleted" />
             }
         </div>
 
@@ -53,7 +53,7 @@ else
 @code {
     private List<LibraryItemResponse>? libraryItems;
 
-    private bool hasCreatedNewItem;
+    private bool libraryItemsIsDirty;
 
     private int currentPage;
     private bool canLoadMoreItems;
@@ -83,7 +83,7 @@ else
         currentPage = 0;
         libraryItems = null;
         canLoadMoreItems = false;
-        hasCreatedNewItem = false;
+        libraryItemsIsDirty = false;
         await GetNextPageAsync();
 
         this.StateHasChanged();
@@ -107,8 +107,8 @@ else
         if (dialogResult.Canceled)
             return;
 
-        hasCreatedNewItem = dialogResult.Data is not null;
-        canLoadMoreItems |= hasCreatedNewItem;
+        libraryItemsIsDirty = dialogResult.Data is not null;
+        canLoadMoreItems |= libraryItemsIsDirty;
     }
 
     private void HandleOnItemUpdated(LibraryItemUpdated libraryItemUpdated)
@@ -118,5 +118,11 @@ else
             return;
 
         libraryItems[oldItemIndex] = libraryItemUpdated.NewItem;
+    }
+
+    private void HandleOnItemDeleted(LibraryItemResponse libraryItem)
+    {
+        if (libraryItems!.Remove(libraryItem))
+            libraryItemsIsDirty = true;
     }
 }
