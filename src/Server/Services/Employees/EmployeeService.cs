@@ -42,15 +42,7 @@ internal sealed class EmployeeService : IEmployeeService
         _dbContext.Employees.Add(employeeRecord);
         await _dbContext.SaveChangesAsync();
 
-        var response = new EmployeeResponse(
-            employeeRecord.Id,
-            employeeRecord.FirstName,
-            employeeRecord.LastName,
-            $"{employeeRecord.FirstName} {employeeRecord.LastName}",
-            employeeRecord.Salary,
-            createEmployeeRequest.Role,
-            employeeRecord.ManagerId,
-            Array.Empty<int>());
+        var response = CreateEmployeeResponse(employeeRecord, Array.Empty<int>());
         return Result<EmployeeResponse>.Success(response);
     }
 
@@ -96,11 +88,11 @@ internal sealed class EmployeeService : IEmployeeService
         return employees;
     }
 
-    public async Task<Result> UpdateEmployeeAsync(int id, UpdateEmployeeRequest updateEmployeeRequest)
+    public async Task<Result<EmployeeResponse>> UpdateEmployeeAsync(int id, UpdateEmployeeRequest updateEmployeeRequest)
     {
         var record = await _dbContext.Employees.FindAsync(id);
         if (record is null)
-            return Result.Fail($"Could not find an employee with ID {id}");
+            return Result<EmployeeResponse>.Fail($"Could not find an employee with ID {id}");
 
         record.FirstName = updateEmployeeRequest.FirstName ?? record.FirstName;
         record.LastName = updateEmployeeRequest.LastName ?? record.LastName;
@@ -108,31 +100,44 @@ internal sealed class EmployeeService : IEmployeeService
         var employeeRole = record.IsCEO ? EmployeeRole.CEO : record.IsManager ? EmployeeRole.Manager : EmployeeRole.Employee;
         var salaryRank = updateEmployeeRequest.SalaryRank ?? record.Salary / SalaryCalculator.GetSalaryCoefficient(employeeRole);
 
+        // Change Role.
         if (updateEmployeeRequest.Role is not null)
         {
             var roleValidationResult = ValidateEmployeeRole(updateEmployeeRequest.Role.Value);
             if (!roleValidationResult.Succeeded)
-                return roleValidationResult;
+                return Result<EmployeeResponse>.CopyOf(roleValidationResult);
 
             // Ensure only one CEO can be present at a time.
             if (updateEmployeeRequest.Role is EmployeeRole.CEO && await _dbContext.Employees.AnyAsync(x => x.IsCEO))
-                return Result.Fail("There is already a CEO registered in the system.");
+                return Result<EmployeeResponse>.Fail("There is already a CEO registered in the system.");
+
+            if (updateEmployeeRequest.Role is EmployeeRole.CEO && record.ManagerId is not null && updateEmployeeRequest.UpdateManager && updateEmployeeRequest.ManagerId is not null)
+                return Result<EmployeeResponse>.Fail("Can not promote to CEO when being managed by someone.");
+
+            if (updateEmployeeRequest.Role is EmployeeRole.Employee && await _dbContext.Employees.AnyAsync(x => x.ManagerId == id))
+                return Result<EmployeeResponse>.Fail("Can not be demoted to regular employee when managing other employees.");
 
             employeeRole = updateEmployeeRequest.Role.Value;
             record.IsCEO = employeeRole is EmployeeRole.CEO;
             record.IsManager = employeeRole is EmployeeRole.Manager;
         }
 
+        // Change to new Manager.
         if (updateEmployeeRequest.UpdateManager)
         {
             if (record.Id == updateEmployeeRequest.ManagerId)
-                return Result.Fail("An employee cannot be their own manager.");
-
-            var validationResult = await ValidateEmployeeRoleAndManagerRelationshipAsync(employeeRole, updateEmployeeRequest.ManagerId);
-            if (!validationResult.Succeeded)
-                return validationResult;
+                return Result<EmployeeResponse>.Fail("An employee cannot be their own manager.");
 
             record.ManagerId = updateEmployeeRequest.ManagerId;
+        }
+
+        // Validate employee role and manager relationship when changing role or manager.
+        if (updateEmployeeRequest.Role is not null || updateEmployeeRequest.UpdateManager)
+        {
+            int? managerId = updateEmployeeRequest.UpdateManager ? updateEmployeeRequest.ManagerId : record.ManagerId;
+            var validationResult = await ValidateEmployeeRoleAndManagerRelationshipAsync(employeeRole, managerId);
+            if (!validationResult.Succeeded)
+                return Result<EmployeeResponse>.CopyOf(validationResult);
         }
 
         record.Salary = SalaryCalculator.CalculateSalary(employeeRole, salaryRank);
@@ -140,7 +145,10 @@ internal sealed class EmployeeService : IEmployeeService
         _dbContext.Employees.Update(record);
         await _dbContext.SaveChangesAsync();
 
-        return Result.Success();
+        var managedEmployees = await _dbContext.Employees.Where(x => x.ManagerId == id).Select(x => x.Id).ToListAsync();
+
+        var response = CreateEmployeeResponse(record, managedEmployees);
+        return Result<EmployeeResponse>.Success(response);
     }
 
     public async Task<Result> DeleteEmployeeAsync(int id)
@@ -160,6 +168,19 @@ internal sealed class EmployeeService : IEmployeeService
         await _dbContext.SaveChangesAsync();
 
         return Result.Success();
+    }
+
+    private static EmployeeResponse CreateEmployeeResponse(EmployeeRecord record, IEnumerable<int> managedEmployees)
+    {
+        return new EmployeeResponse(
+            record.Id,
+            record.FirstName,
+            record.LastName,
+            $"{record.FirstName} {record.LastName}",
+            record.Salary,
+            record.IsCEO ? EmployeeRole.CEO : record.IsManager ? EmployeeRole.Manager : EmployeeRole.Employee,
+            record.ManagerId,
+            managedEmployees);
     }
 
     private static Result ValidateEmployeeRole(EmployeeRole role)

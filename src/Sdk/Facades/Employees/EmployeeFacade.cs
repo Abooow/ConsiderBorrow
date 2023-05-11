@@ -31,10 +31,10 @@ public sealed class EmployeeFacade : IEmployeeFacade
         return _httpClient.GetFromJsonAsync<IEnumerable<EmployeeResponse>>(baseUrl)!;
     }
 
-    public async Task<Result> UpdateEmployeeAsync(int id, UpdateEmployeeRequest updateEmployeeRequest)
+    public async Task<Result<EmployeeResponse>> UpdateEmployeeAsync(int id, UpdateEmployeeRequest updateEmployeeRequest)
     {
         var response = await _httpClient.PatchAsJsonAsync($"{baseUrl}/{id}", updateEmployeeRequest);
-        return await response.ToResultAsync();
+        return await response.ToResultAsync<EmployeeResponse>();
     }
 
     public Task<Result> DeleteEmployeeAsync(int id)

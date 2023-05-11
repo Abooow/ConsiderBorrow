@@ -43,7 +43,7 @@ public sealed class EmployeesController : ControllerBase
     }
 
     [HttpPatch("{id}")]
-    public async Task<ActionResult<Result>> UpdateEmployee(int id, UpdateEmployeeRequest updateEmployeeRequest)
+    public async Task<ActionResult<Result<EmployeeResponse>>> UpdateEmployee(int id, UpdateEmployeeRequest updateEmployeeRequest)
     {
         var result = await _employeeService.UpdateEmployeeAsync(id, updateEmployeeRequest);
 
