@@ -27,7 +27,7 @@ internal sealed class LibraryItemService : ILibraryItemService
 
         var libraryItemRecord = new LibraryItemRecord()
         {
-            CategoryId = createLibraryItemRequest.CategoryId,
+            CategoryId = createLibraryItemRequest.CategoryId!.Value,
             Title = createLibraryItemRequest.Title,
             Type = createLibraryItemRequest.Type
         };

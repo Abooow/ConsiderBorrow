@@ -32,12 +32,12 @@
             }
         }
 
-        <MudButton FullWidth="true" Color="Color.Secondary" Variant="Variant.Text" Class="">Info</MudButton>
+        <MudButton FullWidth="true" Color="Color.Secondary" Variant="Variant.Text">Info</MudButton>
     </div>
 </MudPaper>
 
 @code {
     [Parameter]
     [EditorRequired]
-    public LibraryItemResponse Item { get; set; } = default!;
+    public required LibraryItemResponse Item { get; set; }
 }

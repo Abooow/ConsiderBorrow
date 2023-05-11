@@ -17,7 +17,8 @@ public sealed class CreateLibraryItemRequest
     [Range(1, int.MaxValue, ErrorMessage = "Runtime minutes has to be at least 1 minute.")]
     public int? RunTimeMinutes { get; set; }
 
-    public int CategoryId { get; set; }
+    [Required]
+    public int? CategoryId { get; set; }
 
     [Required]
     public string Type { get; set; } = default!;

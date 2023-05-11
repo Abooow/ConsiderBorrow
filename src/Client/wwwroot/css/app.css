@@ -14,6 +14,7 @@ html, body {
     height: 100% !important;
 }
 
+/* Library Card */
 .library-card {
     position: relative;
     max-width: 250px;
@@ -36,6 +37,32 @@ html, body {
         object-fit: contain;
         width: 100%;
     }
+
+/* Dialog */
+.dialog-content {
+    max-height: calc(80vh - var(--mud-appbar-height) * 2);
+    overflow-y: auto;
+}
+
+    .dialog-content div {
+        padding-inline: 0 !important;
+    }
+
+.mud-dialog-actions {
+    padding-inline: 24px !important;
+}
+
+.dialog-root {
+    min-width: 400px;
+    margin-top: var(--mud-appbar-height);
+}
+
+@media (max-width: 600px) {
+    .dialog-root {
+        min-width: unset;
+        width: 100%;
+    }
+}
 
 .valid.modified:not([type=checkbox]) {
     outline: 1px solid #26b050;

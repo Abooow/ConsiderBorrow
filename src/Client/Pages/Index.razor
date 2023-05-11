@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using ConsiderBorrow.Shared.Models.LibraryItems;
 @inject ILibraryItemFacade LibraryItemFacade
+@inject IDialogService DialogService
 
 <PageTitle>Index</PageTitle>
 
@@ -18,7 +19,11 @@ else if (libraryItems.Count == 0)
 }
 else
 {
-    <div class="pa-4">
+    <div class="pa-12">
+        <div class="d-flex justify-space-between mb-6">
+            <MudButton OnClick="CreateNewLibraryItem" Color="Color.Secondary" Variant="Variant.Outlined">Add New</MudButton>
+        </div>
+
         <div class="gap-4" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
             @foreach (var item in libraryItems)
             {
@@ -46,5 +51,12 @@ else
             libraryItems = new List<LibraryItemResponse>(newLibraryItems);
         else
             libraryItems!.AddRange(newLibraryItems);
+    }
+
+    private async Task CreateNewLibraryItem()
+    {
+        var result = await DialogService.Show<CreateNewLibraryItemDialog>("Create Library Item").Result;
+        if (result.Canceled)
+            return;
     }
 }

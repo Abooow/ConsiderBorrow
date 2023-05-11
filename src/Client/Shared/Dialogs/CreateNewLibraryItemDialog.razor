@@ -1,0 +1,103 @@
+﻿@using ConsiderBorrow.Shared.Models.Categories;
+@using ConsiderBorrow.Shared.Models.LibraryItems;
+@inject ICategoryFacade CategoryFacade
+@inject ILibraryItemFacade LibraryItemFacade
+@inject ISnackbar Snackbar
+
+<MudDialog Class="dialog-root" ClassContent="dialog-content" DefaultFocus="DefaultFocus.Element">
+     <DialogContent>
+        @if (categories is null)
+        {
+            <div class="h-100 d-flex justify-center align-center">
+                <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+            </div>
+        }
+        else if (createLibraryItemModel.Type is null)
+        {
+            <MudText Typo="Typo.body2">What Type of item do you want to create?</MudText>
+            <MudSelect Label="Type" @bind-Value="createLibraryItemModel.Type" AnchorOrigin="Origin.BottomCenter" Dense="true">
+                <MudSelectItem Value="@("Book")" />
+                <MudSelectItem Value="@("DVD")" />
+                <MudSelectItem Value="@("Audio Book")" />
+                <MudSelectItem Value="@("Reference Book")" />
+            </MudSelect>
+        }
+        else
+        {
+            <MudText Typo="Typo.body2" Class="mb-2">Please fill in the remaining fields.</MudText>
+            <MudForm Model="createLibraryItemModel" @bind-IsValid="isValid">
+                <!-- Type -->
+                <MudSelect Label="Type" @bind-Value="createLibraryItemModel.Type" For="() => createLibraryItemModel.Type" AnchorOrigin="Origin.BottomCenter" Dense="true">
+                    <MudSelectItem Value="@("Book")" />
+                    <MudSelectItem Value="@("DVD")" />
+                    <MudSelectItem Value="@("Audio Book")" />
+                    <MudSelectItem Value="@("Reference Book")" />
+                </MudSelect>
+
+                <!-- Title -->
+                <MudTextField Label="Title" @bind-Value="createLibraryItemModel.Title" For="() => createLibraryItemModel.Title" />
+
+                <!-- Author -->
+                @if (createLibraryItemModel.Type is "Book" or "Reference Book")
+                {
+                    <MudTextField Label="Author" @bind-Value="createLibraryItemModel.Author" For="() => createLibraryItemModel.Author" Required RequiredError="Author field must be set." />
+                }
+
+                <!-- Pages -->
+                @if (createLibraryItemModel.Type is "Book" or "Reference Book")
+                {
+                    <MudNumericField Label="Pages" @bind-Value="createLibraryItemModel.Pages" For="() => createLibraryItemModel.Pages" Min="1" Required RequiredError="Pages field must be set." />
+                }
+
+                <!-- RunTimeMinutes -->
+                @if (createLibraryItemModel.Type is "DVD" or "Audio Book")
+                {
+                    <MudNumericField Label="Runtime Minutes" @bind-Value="createLibraryItemModel.RunTimeMinutes" For="() => createLibraryItemModel.RunTimeMinutes" Min="1" Required RequiredError="Runtime Minutes field must be set." />
+                }
+
+                <!-- Category -->
+                <MudSelect Label="Category" @bind-Value="createLibraryItemModel.CategoryId" For="() => createLibraryItemModel.CategoryId" AnchorOrigin="Origin.BottomCenter" Dense="true" Required RequiredError="Category field must be set.">
+                    @foreach (var category in categories)
+                    {
+                        <MudSelectItem Value="@(category.Id as int?)">@category.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudForm>
+        }
+     </DialogContent>
+
+     <DialogActions>
+        <MudButton Variant="Variant.Text" OnClick="Cancel" Size="Size.Small">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Size="Size.Small" Disabled="!isValid" OnClick="OnValidSubmit">Create</MudButton>
+     </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    public required MudDialogInstance MudDialog { get; set; }
+
+    private bool isValid = false;
+    private CreateLibraryItemRequest createLibraryItemModel = new();
+
+    private IEnumerable<CategoryResponse>? categories;
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await CategoryFacade.GetCategoriesAsync();
+    }
+
+    private async Task OnValidSubmit()
+    {
+        var result = await LibraryItemFacade.CreateLibraryItemAsync(createLibraryItemModel);
+        if (!result.Succeeded)
+        {
+            Snackbar.Add(string.Join(", ", result.Messages), Severity.Error);
+            return;
+        }
+
+        Snackbar.Add("Created new Library Item.", Severity.Success);
+        MudDialog.Close(result.Data!);
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}
