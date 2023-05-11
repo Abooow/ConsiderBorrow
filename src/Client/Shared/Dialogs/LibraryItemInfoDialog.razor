@@ -4,6 +4,12 @@
     <DialogContent>
         <MudText Typo="Typo.h6" Class="mb-4">@Item.Title (@Item.TitleAcronym)</MudText>
 
+        <MudHidden Breakpoint="Breakpoint.SmAndUp">
+            <div class="d-flex justify-center mb-4">
+                <img height="200" src="images/no-image.png" style="object-fit: contain;" />
+            </div>
+        </MudHidden>
+
         <!-- General Info -->
         <div class="d-flex gap-4 mb-4">
             <div class="flex-1" style="min-width: 300px;">
@@ -26,9 +32,12 @@
                     <MudField Label="Runtime Minutes" Variant="Variant.Text" Class="mb-4">@Item.RunTimeMinutes</MudField>
                 }
             </div>
-            <div>
-                <img width="200" src="images/no-image.png" style="object-fit: contain;" />
-            </div>
+
+            <MudHidden Breakpoint="Breakpoint.Xs">
+                <div>
+                    <img width="200" src="images/no-image.png" style="object-fit: contain;" />
+                </div>
+            </MudHidden>
         </div>
 
         <!-- Borrower Info -->
