@@ -1,0 +1,35 @@
+﻿@using ConsiderBorrow.Shared.Models.Categories;
+@inject ICategoryFacade CategoryFacade
+@inject ISnackbar Snackbar
+
+<MudDialog Class="dialog-root" ClassContent="dialog-content" DefaultFocus="DefaultFocus.Element">
+    <DialogContent>
+        <MudTextField Label="Name" @bind-Value="name" Immediate Required RequiredError="Please input a name." />
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Text" OnClick="Cancel" Size="Size.Small">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Size="Size.Small" Disabled="string.IsNullOrEmpty(name)" OnClick="CreateCategory">Create</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    public required MudDialogInstance MudDialog { get; set; }
+
+    private string? name;
+
+    private async Task CreateCategory()
+    {
+        var result = await CategoryFacade.CreateCategoryAsync(new CreateCategoryRequest() { Name = name! });
+        if (!result.Succeeded)
+        {
+            Snackbar.Add(string.Join(", ", result.Messages), Severity.Error);
+            return;
+        }
+
+        MudDialog.Close(result.Data!);
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

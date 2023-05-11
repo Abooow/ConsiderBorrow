@@ -10,7 +10,7 @@
 
     <DialogActions>
         <MudButton Variant="Variant.Text" OnClick="Cancel" Size="Size.Small">Cancel</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Size="Size.Small" Disabled="borrowerName is null" OnClick="CheckOutItem">Check Out</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Size="Size.Small" Disabled="string.IsNullOrEmpty(borrowerName)" OnClick="CheckOutItem">Check Out</MudButton>
     </DialogActions>
 </MudDialog>
 

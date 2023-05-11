@@ -16,13 +16,17 @@ else if (categories.Count == 0)
     <div class="h-100 d-flex justify-center align-center">
         <div class="d-flex flex-column justify-center">
             <MudText Typo="Typo.h4" Class="mb-4">No Items To Display</MudText>
-            <MudButton  Color="Color.Secondary" Variant="Variant.Outlined">Add New</MudButton>
+            <MudButton OnClick="CreateNewCategory" Color="Color.Secondary" Variant="Variant.Outlined">Add New</MudButton>
         </div>
     </div>
 }
 else
 {
     <div class="pa-12">
+        <div class="mb-6">
+            <MudButton OnClick="CreateNewCategory" Color="Color.Secondary" Variant="Variant.Outlined">Add New</MudButton>
+        </div>
+
         <MudSimpleTable>
             <thead>
                 <tr>
@@ -51,5 +55,14 @@ else
     {
         var existingCategories = await CategoryFacade.GetCategoriesAsync();
         categories = new List<CategoryResponse>(existingCategories);
+    }
+
+    private async Task CreateNewCategory()
+    {
+        var dialogResult = await DialogService.Show<CreateCategoryDialog>("Create Category").Result;
+        if (dialogResult.Canceled || dialogResult.Data is null)
+            return;
+
+        categories!.Add((CategoryResponse)dialogResult.Data);
     }
 }
