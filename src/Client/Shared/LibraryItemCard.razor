@@ -1,5 +1,7 @@
 ﻿@using ConsiderBorrow.Shared.Models.LibraryItems;
+@inject ILibraryItemFacade LibraryItemFacade
 @inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
 <MudPaper Class="library-card d-flex flex-column justify-space-between px-4 py-2">
     <MudIconButton Class="library-card-settings" Icon="@Icons.Material.Filled.Settings" />
@@ -24,7 +26,7 @@
             if (Item.HasBeenBorrowed)
             {
                 <MudTooltip RootClass="w-100" Text="@($"Item has been borrowed by {Item.Borrower}")">
-                    <MudButton FullWidth="true" Color="Color.Primary" Variant="Variant.Outlined">Return</MudButton>
+                    <MudButton FullWidth="true" Color="Color.Primary" Variant="Variant.Outlined" OnClick="ReturnItem">Return</MudButton>
                 </MudTooltip>
             }
             else
@@ -48,5 +50,15 @@
         parameters.Add(nameof(CheckOutLibraryItemDialog.Item), Item);
 
         DialogService.Show<CheckOutLibraryItemDialog>("Check Out Item", parameters);
+    }
+
+    private async Task ReturnItem()
+    {
+        var result = await LibraryItemFacade.ReturnLibraryItemAsync(Item.Id);
+        if (!result.Succeeded)
+        {
+            Snackbar.Add(string.Join(", ", result.Messages), Severity.Error);
+            return;
+        }
     }
 }

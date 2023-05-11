@@ -22,7 +22,7 @@ else
     <div class="pa-12">
         @if (hasCreatedNewItem)
         {
-            <MudAlert Class="mb-6" Severity="Severity.Warning">A new item has been created. Please refresh the page to see the updated content</MudAlert>
+            <MudAlert Class="mb-6" Severity="Severity.Warning">A new item has been created. Please refresh the page to see the updated content.</MudAlert>
         }
 
         <div class="d-flex justify-space-between mb-6">
@@ -71,7 +71,7 @@ else
         }
     }
 
-    private const int itemsPerPage = 3;
+    private const int itemsPerPage = 7;
 
     protected override async Task OnInitializedAsync()
     {
@@ -107,5 +107,6 @@ else
             return;
 
         hasCreatedNewItem = result.Data is not null;
+        canLoadMoreItems |= hasCreatedNewItem;
     }
 }
