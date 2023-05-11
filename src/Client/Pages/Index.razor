@@ -21,31 +21,71 @@ else
 {
     <div class="pa-12">
         <div class="d-flex justify-space-between mb-6">
+            <MudSelect T="string" Label="Sort" @bind-Value="sortType" AnchorOrigin="Origin.BottomCenter" Dense="true" Style="max-width: 210px;">
+                <MudSelectItem Value="@("Category Name")" />
+                <MudSelectItem Value="@("Type")" />
+            </MudSelect>
+
             <MudButton OnClick="CreateNewLibraryItem" Color="Color.Secondary" Variant="Variant.Outlined">Add New</MudButton>
         </div>
 
-        <div class="gap-4" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+        <div class="gap-4 mb-6" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
             @foreach (var item in libraryItems)
             {
                 <LibraryItemCard Item="item" />
             }
         </div>
+
+        @if (canLoadMoreItems)
+        {
+            <div class="d-flex justify-center">
+                <MudButton OnClick="GetNextPageAsync" Color="Color.Secondary">Load More</MudButton>
+            </div>
+        }
     </div>
 }
 
 @code {
     private List<LibraryItemResponse>? libraryItems;
 
-    private int currentPage = 0;
+    private int currentPage;
+    private bool canLoadMoreItems;
+    private string _sortType = "Category Name";
+    private string sortType
+    {
+        get => _sortType;
+        set
+        {
+            if (_sortType == value)
+                return;
+
+            _sortType = value;
+            InvokeAsync(ResetLoadedItems);
+        }
+    }
+
+    private const int itemsPerPage = 3;
 
     protected override async Task OnInitializedAsync()
     {
         await GetNextPageAsync();
     }
 
+    private async Task ResetLoadedItems()
+    {
+        currentPage = 0;
+        libraryItems = null;
+        canLoadMoreItems = false;
+        await GetNextPageAsync();
+
+        this.StateHasChanged();
+    }
+
     private async Task GetNextPageAsync()
     {
-        var newLibraryItems = await LibraryItemFacade.GetLibraryItemsAsync(currentPage, 16, false);
+        var newLibraryItems = await LibraryItemFacade.GetLibraryItemsAsync(currentPage++, itemsPerPage, sortType == "Type");
+
+        canLoadMoreItems = newLibraryItems.Count() == itemsPerPage;
 
         if (libraryItems is null)
             libraryItems = new List<LibraryItemResponse>(newLibraryItems);
