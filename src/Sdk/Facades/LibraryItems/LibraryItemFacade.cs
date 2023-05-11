@@ -31,22 +31,22 @@ public sealed class LibraryItemFacade : ILibraryItemFacade
         return _httpClient.GetFromJsonAsync<IEnumerable<LibraryItemResponse>>($"{baseUrl}?currentPage={currentPage}&pageSize={pageSize}&sortByType={sortByType}")!;
     }
 
-    public async Task<Result> CheckOutLibraryItemAsync(int id, CheckOutLibraryItemRequest checkOutLibraryItemRequest)
+    public async Task<Result<LibraryItemResponse>> CheckOutLibraryItemAsync(int id, CheckOutLibraryItemRequest checkOutLibraryItemRequest)
     {
         var response = await _httpClient.PostAsJsonAsync($"{baseUrl}/check-out/{id}", checkOutLibraryItemRequest);
-        return await response.ToResultAsync();
+        return await response.ToResultAsync<LibraryItemResponse>();
     }
 
-    public async Task<Result> ReturnLibraryItemAsync(int id)
+    public async Task<Result<LibraryItemResponse>> ReturnLibraryItemAsync(int id)
     {
         var response = await _httpClient.PostAsync($"{baseUrl}/return/{id}", null);
-        return await response.ToResultAsync();
+        return await response.ToResultAsync<LibraryItemResponse>();
     }
 
-    public async Task<Result> UpdateItemAsync(int id, UpdateLibraryItemRequest updateLibraryItemRequest)
+    public async Task<Result<LibraryItemResponse>> UpdateItemAsync(int id, UpdateLibraryItemRequest updateLibraryItemRequest)
     {
         var response = await _httpClient.PatchAsJsonAsync($"{baseUrl}/{id}", updateLibraryItemRequest);
-        return await response.ToResultAsync();
+        return await response.ToResultAsync<LibraryItemResponse>();
     }
 
     public Task<Result> DeleteItemAsync(int id)
