@@ -2,7 +2,7 @@
 
 namespace ConsiderBorrow.Shared.Models.LibraryItems;
 
-public sealed class BorrowLibraryItemRequest
+public sealed class CheckOutLibraryItemRequest
 {
     [Required]
     [MaxLength(100, ErrorMessage = "Customer name can not exceed 100 characters.")]

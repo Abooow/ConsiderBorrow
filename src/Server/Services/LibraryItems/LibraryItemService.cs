@@ -129,7 +129,7 @@ internal sealed class LibraryItemService : ILibraryItemService
         return libraryItems;
     }
 
-    public async Task<Result> BorrowItemAsync(int id, BorrowLibraryItemRequest borrowLibraryItemRequest)
+    public async Task<Result> CheckOutItemAsync(int id, CheckOutLibraryItemRequest checkOutLibraryItemRequest)
     {
         var record = await _dbContext.LibraryItems.FindAsync(id);
         if (record is null)
@@ -137,13 +137,13 @@ internal sealed class LibraryItemService : ILibraryItemService
 
         // Check if the customer can borrow this item.
         if (!record.IsBorrowable)
-            return Result.Fail($"This item of type '{record.Type}' is not eligible for borrowing.");
+            return Result.Fail($"This item of type '{record.Type}' cannot be borrowed.");
 
         if (record.Borrower is not null)
-            return Result.Fail("This item is already borrowed by another customer.");
+            return Result.Fail("This item is already checked out by another customer.");
 
         // Mark item as borrowed.
-        record.Borrower = borrowLibraryItemRequest.CustomerName;
+        record.Borrower = checkOutLibraryItemRequest.CustomerName;
         _dbContext.Entry(record).Property(x => x.Borrower).IsModified = true;
 
         record.BorrowDate = DateTime.UtcNow;
@@ -162,7 +162,7 @@ internal sealed class LibraryItemService : ILibraryItemService
 
         // Check if item can be returned.
         if (!record.IsBorrowable)
-            return Result.Fail($"This item of type '{record.Type}' is not eligible for returning.");
+            return Result.Fail($"This item of type '{record.Type}' cannot be returned.");
 
         if (record.Borrower is null)
             return Result.Fail("This item cannot be returned as it's not yet checked out.");

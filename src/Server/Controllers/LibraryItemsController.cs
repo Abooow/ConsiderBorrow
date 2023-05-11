@@ -43,16 +43,16 @@ public sealed class LibraryItemsController : ControllerBase
     }
 
     [HttpPost("check-out/{id}")]
-    public async Task<ActionResult<Result>> BorrowLibraryItem(int id, BorrowLibraryItemRequest borrowLibraryItemRequest)
+    public async Task<ActionResult<Result>> BorrowLibraryItem(int id, CheckOutLibraryItemRequest checkOutLibraryItemRequest)
     {
-        var result = await _libraryItemService.BorrowItemAsync(id, borrowLibraryItemRequest);
+        var result = await _libraryItemService.CheckOutItemAsync(id, checkOutLibraryItemRequest);
 
         return result.Succeeded
             ? Ok(result)
             : BadRequest(result);
     }
 
-    [HttpPost("check-in/{id}")]
+    [HttpPost("return/{id}")]
     public async Task<ActionResult<Result>> ReturnLibraryItem(int id)
     {
         var result = await _libraryItemService.ReturnItemAsync(id);

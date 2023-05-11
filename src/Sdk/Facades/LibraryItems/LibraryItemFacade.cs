@@ -31,15 +31,15 @@ public sealed class LibraryItemFacade : ILibraryItemFacade
         return _httpClient.GetFromJsonAsync<IEnumerable<LibraryItemResponse>>($"{baseUrl}?currentPage={currentPage}&pageSize={pageSize}&sortByType={sortByType}")!;
     }
 
-    public async Task<Result> BorrowLibraryItemAsync(int id, BorrowLibraryItemRequest borrowLibraryItemRequest)
+    public async Task<Result> CheckOutLibraryItemAsync(int id, CheckOutLibraryItemRequest checkOutLibraryItemRequest)
     {
-        var response = await _httpClient.PostAsJsonAsync($"{baseUrl}/check-out/{id}", borrowLibraryItemRequest);
+        var response = await _httpClient.PostAsJsonAsync($"{baseUrl}/check-out/{id}", checkOutLibraryItemRequest);
         return await response.ToResultAsync();
     }
 
     public async Task<Result> ReturnLibraryItemAsync(int id)
     {
-        var response = await _httpClient.PostAsync($"{baseUrl}/check-in/{id}", null);
+        var response = await _httpClient.PostAsync($"{baseUrl}/return/{id}", null);
         return await response.ToResultAsync();
     }
 

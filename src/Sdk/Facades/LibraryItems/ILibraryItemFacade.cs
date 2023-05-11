@@ -8,7 +8,7 @@ public interface ILibraryItemFacade
     Task<Result<LibraryItemResponse>> CreateLibraryItemAsync(CreateLibraryItemRequest createLibraryItemRequest);
     Task<Result<LibraryItemResponse>> GetLibraryItemAsync(int id);
     Task<IEnumerable<LibraryItemResponse>> GetLibraryItemsAsync(int currentPage = 0, int pageSize = 16, bool sortByType = false);
-    Task<Result> BorrowLibraryItemAsync(int id, BorrowLibraryItemRequest borrowLibraryItemRequest);
+    Task<Result> CheckOutLibraryItemAsync(int id, CheckOutLibraryItemRequest checkOutLibraryItemRequest);
     Task<Result> ReturnLibraryItemAsync(int id);
     Task<Result> UpdateItemAsync(int id, UpdateLibraryItemRequest updateLibraryItemRequest);
     Task<Result> DeleteItemAsync(int id);

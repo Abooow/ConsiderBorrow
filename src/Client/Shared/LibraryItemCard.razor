@@ -1,4 +1,5 @@
 ﻿@using ConsiderBorrow.Shared.Models.LibraryItems;
+@inject IDialogService DialogService
 
 <MudPaper Class="library-card d-flex flex-column justify-space-between px-4 py-2">
     <MudIconButton Class="library-card-settings" Icon="@Icons.Material.Filled.Settings" />
@@ -28,7 +29,7 @@
             }
             else
             {
-                <MudButton FullWidth="true" Color="Color.Primary" Variant="Variant.Filled">Borrow</MudButton>
+                <MudButton FullWidth="true" Color="Color.Primary" Variant="Variant.Filled" OnClick="CheckOutItem">Check Out</MudButton>
             }
         }
 
@@ -40,4 +41,12 @@
     [Parameter]
     [EditorRequired]
     public required LibraryItemResponse Item { get; set; }
+
+    private void CheckOutItem()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(CheckOutLibraryItemDialog.Item), Item);
+
+        DialogService.Show<CheckOutLibraryItemDialog>("Check Out Item", parameters);
+    }
 }

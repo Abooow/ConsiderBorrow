@@ -1,0 +1,39 @@
+﻿@using ConsiderBorrow.Shared.Models.LibraryItems;
+@inject ILibraryItemFacade LibraryItemFacade
+@inject ISnackbar Snackbar
+
+<MudDialog Class="dialog-root" ClassContent="dialog-content" DefaultFocus="DefaultFocus.Element">
+    <DialogContent>
+        <MudText Typo="Typo.body2">Please enter the name of the borrower</MudText>
+        <MudTextField Label="Name" @bind-Value="borrowerName" Immediate Required RequiredError="Please input a name." />
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Text" OnClick="Cancel" Size="Size.Small">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Size="Size.Small" Disabled="borrowerName is null" OnClick="CheckOutItem">Check Out</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    public required MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public required LibraryItemResponse Item { get; set; }
+
+    private string? borrowerName;
+
+    private async Task CheckOutItem()
+    {
+        var result = await LibraryItemFacade.CheckOutLibraryItemAsync(Item.Id, new CheckOutLibraryItemRequest() { CustomerName = borrowerName! });
+        if (!result.Succeeded)
+        {
+            Snackbar.Add(string.Join(", ", result.Messages), Severity.Error);
+            return;
+        }
+
+        MudDialog.Close();
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}
