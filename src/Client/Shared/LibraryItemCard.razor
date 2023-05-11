@@ -4,7 +4,8 @@
 @inject ISnackbar Snackbar
 
 <MudPaper Class="library-card d-flex flex-column justify-space-between px-4 py-2">
-    <MudIconButton Class="library-card-settings" Icon="@Icons.Material.Filled.Settings" />
+    <MudIconButton Class="library-card-settings" Icon="@Icons.Material.Filled.Settings" OnClick="EditItem" />
+
     <div class="mb-4">
         <div class="d-flex justify-center">
             <MudChip Variant="Variant.Text" Color="Color.Secondary" Size="Size.Small">@Item.Type</MudChip>
@@ -83,6 +84,18 @@
         }
 
         await OnItemUpdated.InvokeAsync(new LibraryItemUpdated(Item, result.Data!));
+    }
+
+    private async Task EditItem()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add(nameof(EditLibraryItemDialog.Item), Item);
+
+        var dialogResult = await DialogService.Show<EditLibraryItemDialog>("Edit Item", parameters).Result;
+        if (dialogResult.Canceled)
+            return;
+
+        await OnItemUpdated.InvokeAsync(new LibraryItemUpdated(Item, (LibraryItemResponse)dialogResult.Data));
     }
 
     private void ShowMoreInfo()

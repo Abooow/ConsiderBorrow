@@ -1,0 +1,105 @@
+﻿@using ConsiderBorrow.Shared.Models.Categories;
+@using ConsiderBorrow.Shared.Models.LibraryItems;
+@inject ICategoryFacade CategoryFacade
+@inject ILibraryItemFacade LibraryItemFacade
+@inject ISnackbar Snackbar
+
+<MudDialog Class="dialog-root" ClassContent="dialog-content" DefaultFocus="DefaultFocus.Element">
+    <DialogContent>
+        @if (categories is null)
+        {
+            <div class="h-100 d-flex justify-center align-center">
+                <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+            </div>
+        }
+        else
+        {
+            <MudForm Model="updateLibraryItemRequest" @bind-IsValid="isValid">
+                <!-- Type -->
+                <MudSelect Label="Type" @bind-Value="updateLibraryItemRequest!.Type" For="() => updateLibraryItemRequest!.Type" AnchorOrigin="Origin.BottomCenter" Dense="true">
+                    <MudSelectItem Value="@("Book")" />
+                    <MudSelectItem Value="@("DVD")" />
+                    <MudSelectItem Value="@("Audio Book")" />
+                    <MudSelectItem Value="@("Reference Book")" />
+                </MudSelect>
+
+                <!-- Title -->
+                <MudTextField Label="Title" @bind-Value="updateLibraryItemRequest.Title" For="() => updateLibraryItemRequest.Title" />
+
+                <!-- Author -->
+                @if (updateLibraryItemRequest.Type is "Book" or "Reference Book")
+                {
+                    <MudTextField Label="Author" @bind-Value="updateLibraryItemRequest.Author" For="() => updateLibraryItemRequest.Author" Required RequiredError="Author field must be set." />
+                }
+
+                <!-- Pages -->
+                @if (updateLibraryItemRequest.Type is "Book" or "Reference Book")
+                {
+                    <MudNumericField Label="Pages" @bind-Value="updateLibraryItemRequest.Pages" For="() => updateLibraryItemRequest.Pages" Min="1" Required RequiredError="Pages field must be set." />
+                }
+
+                <!-- RunTimeMinutes -->
+                @if (updateLibraryItemRequest.Type is "DVD" or "Audio Book")
+                {
+                    <MudNumericField Label="Runtime Minutes" @bind-Value="updateLibraryItemRequest.RunTimeMinutes" For="() => updateLibraryItemRequest.RunTimeMinutes" Min="1" Required RequiredError="Runtime Minutes field must be set." />
+                }
+
+                <!-- Category -->
+                <MudSelect Label="Category" @bind-Value="updateLibraryItemRequest.CategoryId" For="() => updateLibraryItemRequest.CategoryId" AnchorOrigin="Origin.BottomCenter" Dense="true" Required RequiredError="Category field must be set.">
+                    @foreach (var category in categories)
+                    {
+                        <MudSelectItem Value="@(category.Id as int?)">@category.Name</MudSelectItem>
+                    }
+                </MudSelect>
+            </MudForm>
+        }
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Size="Size.Small" OnClick="Cancel">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" ButtonType="ButtonType.Submit" Size="Size.Small" Disabled="!isValid" OnClick="OnValidSubmit">Update</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter]
+    public required MudDialogInstance MudDialog { get; set; }
+
+    [Parameter]
+    public required LibraryItemResponse Item { get; set; }
+
+    private bool isValid = false;
+    private UpdateLibraryItemRequest? updateLibraryItemRequest;
+
+    private IEnumerable<CategoryResponse>? categories;
+
+    protected override async Task OnInitializedAsync()
+    {
+        updateLibraryItemRequest = new UpdateLibraryItemRequest()
+        {
+            CategoryId = Item.CategoryId,
+            Title = Item.Title,
+            Author = Item.Author,
+            Pages = Item.Pages,
+            RunTimeMinutes = Item.RunTimeMinutes,
+            Type = Item.Type
+        };
+
+        categories = await CategoryFacade.GetCategoriesAsync();
+    }
+
+    private async Task OnValidSubmit()
+    {
+        var result = await LibraryItemFacade.UpdateItemAsync(Item.Id, updateLibraryItemRequest!);
+        if (!result.Succeeded)
+        {
+            Snackbar.Add(string.Join(", ", result.Messages), Severity.Error);
+            return;
+        }
+
+        Snackbar.Add("Updated Library Item.", Severity.Success);
+        MudDialog.Close(result.Data!);
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}
