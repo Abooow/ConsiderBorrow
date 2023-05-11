@@ -26,10 +26,10 @@ public sealed class CategoryFacade : ICategoryFacade
         return _httpClient.GetFromJsonAsync<IEnumerable<CategoryResponse>>(baseUrl)!;
     }
 
-    public async Task<Result> UpdateCategoryAsync(int id, UpdateCategoryRequest updateCategoryRequest)
+    public async Task<Result<CategoryResponse>> UpdateCategoryAsync(int id, UpdateCategoryRequest updateCategoryRequest)
     {
         var response = await _httpClient.PatchAsJsonAsync($"{baseUrl}/{id}", updateCategoryRequest);
-        return await response.ToResultAsync();
+        return await response.ToResultAsync<CategoryResponse>();
     }
 
     public Task<Result> DeleteCategoryAsync(int id)

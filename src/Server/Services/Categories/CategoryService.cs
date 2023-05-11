@@ -40,20 +40,20 @@ internal sealed class CategoryService : ICategoryService
             .ToListAsync();
     }
 
-    public async Task<Result> UpdateCategoryAsync(int id, UpdateCategoryRequest updateCategoryRequest)
+    public async Task<Result<CategoryResponse>> UpdateCategoryAsync(int id, UpdateCategoryRequest updateCategoryRequest)
     {
         var record = await _dbContext.Categories.FindAsync(id);
         if (record is null)
-            return Result.Fail($"Could not find a category with ID {id}");
+            return Result<CategoryResponse>.Fail($"Could not find a category with ID {id}");
 
         // New name is the same as old name, do an early return.
         if (record.CategoryName == updateCategoryRequest.NewName)
-            return Result.Success();
+            return Result<CategoryResponse>.Success();
 
         // Ensure the new category name is not used by another record.
         bool categoryNameIsUsed = await _dbContext.Categories.AnyAsync(x => x.CategoryName == updateCategoryRequest.NewName);
         if (categoryNameIsUsed)
-            return Result.Fail($"A category with name '{updateCategoryRequest.NewName}' already exists.");
+            return Result<CategoryResponse>.Fail($"A category with name '{updateCategoryRequest.NewName}' already exists.");
 
         // Update only CategoryName.
         record.CategoryName = updateCategoryRequest.NewName;
@@ -61,7 +61,7 @@ internal sealed class CategoryService : ICategoryService
 
         await _dbContext.SaveChangesAsync();
 
-        return Result.Success();
+        return Result<CategoryResponse>.Success(new CategoryResponse(record.Id, record.CategoryName));
     }
 
     public async Task<Result> DeleteCategoryAsync(int id)

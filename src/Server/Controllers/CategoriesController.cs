@@ -33,7 +33,7 @@ public sealed class CategoriesController : ControllerBase
     }
 
     [HttpPatch("{id}")]
-    public async Task<ActionResult<Result>> UpdateCategory(int id, UpdateCategoryRequest updateCategoryRequest)
+    public async Task<ActionResult<Result<CategoryResponse>>> UpdateCategory(int id, UpdateCategoryRequest updateCategoryRequest)
     {
         var result = await _categoryService.UpdateCategoryAsync(id, updateCategoryRequest);
 

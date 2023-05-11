@@ -7,6 +7,6 @@ public interface ICategoryFacade
 {
     Task<Result<CategoryResponse>> CreateCategoryAsync(CreateCategoryRequest createCategoryRequest);
     Task<IEnumerable<CategoryResponse>> GetCategoriesAsync();
-    Task<Result> UpdateCategoryAsync(int id, UpdateCategoryRequest updateCategoryRequest);
+    Task<Result<CategoryResponse>> UpdateCategoryAsync(int id, UpdateCategoryRequest updateCategoryRequest);
     Task<Result> DeleteCategoryAsync(int id);
 }
