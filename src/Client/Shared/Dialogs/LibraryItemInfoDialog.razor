@@ -6,7 +6,7 @@
 
         <MudHidden Breakpoint="Breakpoint.SmAndUp">
             <div class="d-flex justify-center mb-4">
-                <img height="200" src="images/no-image.png" style="object-fit: contain;" />
+                <img height="200" src="@DefaultImageProvider.GetDefaultImage(Item.Type)" style="object-fit: contain;" />
             </div>
         </MudHidden>
 
@@ -35,7 +35,7 @@
 
             <MudHidden Breakpoint="Breakpoint.Xs">
                 <div>
-                    <img width="200" src="images/no-image.png" style="object-fit: contain;" />
+                    <img width="200" src="@DefaultImageProvider.GetDefaultImage(Item.Type)" style="object-fit: contain;" />
                 </div>
             </MudHidden>
         </div>
