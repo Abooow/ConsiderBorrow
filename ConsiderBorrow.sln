@@ -9,7 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsiderBorrow.Client", "sr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsiderBorrow.Shared", "src\Shared\ConsiderBorrow.Shared.csproj", "{A16B6956-C88D-423A-8DDC-C8D1F9768BCF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsiderBorrow.Sdk", "src\Sdk\ConsiderBorrow.Sdk.csproj", "{9DB5A4A9-4C77-4AD1-A1E1-DDEA311256CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsiderBorrow.Sdk", "src\Sdk\ConsiderBorrow.Sdk.csproj", "{9DB5A4A9-4C77-4AD1-A1E1-DDEA311256CB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

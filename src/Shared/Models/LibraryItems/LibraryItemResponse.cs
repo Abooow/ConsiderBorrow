@@ -8,7 +8,7 @@ public sealed record LibraryItemResponse(
     string? Author,
     int? Pages,
     int? RunTimeMinutes,
-    bool IsBorrowable,
+    bool CanBeBorrowed,
     bool HasBeenBorrowed,
     string? Borrower,
     DateTime? BorrowDate,

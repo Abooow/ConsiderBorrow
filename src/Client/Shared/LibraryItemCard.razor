@@ -1,0 +1,43 @@
+﻿@using ConsiderBorrow.Shared.Models.LibraryItems;
+
+<MudPaper Class="library-card d-flex flex-column justify-space-between px-4 py-2">
+    <MudIconButton Class="library-card-settings" Icon="@Icons.Material.Filled.Settings" />
+    <div class="mb-4">
+        <div class="d-flex justify-center">
+            <MudChip Style="margin-inline: auto;" Variant="Variant.Text" Color="Color.Secondary" Size="Size.Small">@Item.Type</MudChip>
+        </div>
+        <div class="library-card-cover my-2">
+            <img src="images/no-image.png" />
+        </div>
+
+        <div class="d-flex flex-column align-center">
+            <MudText Style="font-weight: bold;">@Item.Title (@Item.TitleAcronym)</MudText>
+            <MudText Typo="Typo.body2">@Item.Author</MudText>
+            <MudChip Variant="Variant.Text" Color="Color.Primary" Size="Size.Small">@Item.Category</MudChip>
+        </div>
+    </div>
+
+    <div class="d-flex flex-column gap-2">
+        @if (Item.CanBeBorrowed)
+        {
+            if (Item.HasBeenBorrowed)
+            {
+                <MudTooltip RootClass="w-100" Text="@($"Item has been borrowed by {Item.Borrower}")">
+                    <MudButton FullWidth="true" Color="Color.Primary" Variant="Variant.Outlined">Return</MudButton>
+                </MudTooltip>
+            }
+            else
+            {
+                <MudButton FullWidth="true" Color="Color.Primary" Variant="Variant.Filled">Borrow</MudButton>
+            }
+        }
+
+        <MudButton FullWidth="true" Color="Color.Secondary" Variant="Variant.Text" Class="">Info</MudButton>
+    </div>
+</MudPaper>
+
+@code {
+    [Parameter]
+    [EditorRequired]
+    public LibraryItemResponse Item { get; set; } = default!;
+}

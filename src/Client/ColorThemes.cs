@@ -96,7 +96,7 @@ internal static class ColorThemes
         Palette = new PaletteLight()
         {
             Primary = "#FE424D",
-            Secondary = "#EE4266",
+            Secondary = "#022D41",
             Tertiary = "#F1F7FC",
 
             TextPrimary = "#000000",

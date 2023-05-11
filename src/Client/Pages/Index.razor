@@ -1,5 +1,50 @@
 ﻿@page "/"
+@using ConsiderBorrow.Shared.Models.LibraryItems;
+@inject ILibraryItemFacade LibraryItemFacade
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
+@if (libraryItems is null)
+{
+    <div class="h-100 d-flex justify-center align-center">
+        <MudProgressCircular Color="Color.Default" Indeterminate="true" />
+    </div>
+}
+else if (libraryItems.Count == 0)
+{
+    <div class="h-100 d-flex justify-center align-center">
+        <MudText Typo="Typo.h4">No Items To Display</MudText>
+    </div>
+}
+else
+{
+    <div class="pa-4">
+        <div class="gap-4" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+            @foreach (var item in libraryItems)
+            {
+                <LibraryItemCard Item="item" />
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private List<LibraryItemResponse>? libraryItems;
+
+    private int currentPage = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetNextPageAsync();
+    }
+
+    private async Task GetNextPageAsync()
+    {
+        var newLibraryItems = await LibraryItemFacade.GetLibraryItemsAsync(currentPage, 16, false);
+
+        if (libraryItems is null)
+            libraryItems = new List<LibraryItemResponse>(newLibraryItems);
+        else
+            libraryItems!.AddRange(newLibraryItems);
+    }
+}
