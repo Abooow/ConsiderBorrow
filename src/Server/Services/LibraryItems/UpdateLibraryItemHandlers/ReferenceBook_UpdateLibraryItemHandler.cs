@@ -17,11 +17,11 @@ internal sealed class ReferenceBook_UpdateLibraryItemHandler : IUpdateLibraryIte
 
         if (record.Author is null && updateLibraryItemRequest.Author is null)
             errors.Add("The Author field is required for reference books.");
-        record.Author ??= updateLibraryItemRequest.Author;
+        record.Author = updateLibraryItemRequest.Author ?? record.Author;
 
         if (record.Pages is null && updateLibraryItemRequest.Pages is null)
             errors.Add("The Pages field is required for reference books.");
-        record.Pages ??= updateLibraryItemRequest.Pages;
+        record.Pages = updateLibraryItemRequest.Pages ?? record.Pages;
 
         return errors.Any()
             ? Result.Fail(errors).WithDescription(StatusCodeDescriptions.ValidationError)

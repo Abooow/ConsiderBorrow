@@ -18,7 +18,7 @@ internal sealed class AudioBook_UpdateLibraryItemHandler : IUpdateLibraryItemHan
 
         if (record.RunTimeMinutes is null && updateLibraryItemRequest.RunTimeMinutes is null)
             errors.Add("The RunTimeMinutes field is required for audio books.");
-        record.RunTimeMinutes ??= updateLibraryItemRequest.RunTimeMinutes;
+        record.RunTimeMinutes = updateLibraryItemRequest.RunTimeMinutes ?? record.RunTimeMinutes;
 
         return errors.Any()
             ? Result.Fail(errors).WithDescription(StatusCodeDescriptions.ValidationError)

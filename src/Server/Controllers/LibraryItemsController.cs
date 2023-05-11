@@ -43,7 +43,7 @@ public sealed class LibraryItemsController : ControllerBase
     }
 
     [HttpPost("check-out/{id}")]
-    public async Task<ActionResult<Result>> BorrowLibraryItem(int id, CheckOutLibraryItemRequest checkOutLibraryItemRequest)
+    public async Task<ActionResult<Result<LibraryItemResponse>>> CheckOutLibraryItem(int id, CheckOutLibraryItemRequest checkOutLibraryItemRequest)
     {
         var result = await _libraryItemService.CheckOutItemAsync(id, checkOutLibraryItemRequest);
 
@@ -53,7 +53,7 @@ public sealed class LibraryItemsController : ControllerBase
     }
 
     [HttpPost("return/{id}")]
-    public async Task<ActionResult<Result>> ReturnLibraryItem(int id)
+    public async Task<ActionResult<Result<LibraryItemResponse>>> ReturnLibraryItem(int id)
     {
         var result = await _libraryItemService.ReturnItemAsync(id);
 
@@ -63,7 +63,7 @@ public sealed class LibraryItemsController : ControllerBase
     }
 
     [HttpPatch("{id}")]
-    public async Task<ActionResult<Result>> UpdateItem(int id, UpdateLibraryItemRequest updateLibraryItemRequest)
+    public async Task<ActionResult<Result<LibraryItemResponse>>> UpdateItem(int id, UpdateLibraryItemRequest updateLibraryItemRequest)
     {
         var result = await _libraryItemService.UpdateItemAsync(id, updateLibraryItemRequest);
 
