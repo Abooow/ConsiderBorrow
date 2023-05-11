@@ -32,10 +32,10 @@ public sealed class CategoriesController : ControllerBase
         return await _categoryService.GetCategoriesAsync();
     }
 
-    [HttpPatch]
-    public async Task<ActionResult<Result>> UpdateCategory(UpdateCategoryRequest updateCategoryRequest)
+    [HttpPatch("{id}")]
+    public async Task<ActionResult<Result>> UpdateCategory(int id, UpdateCategoryRequest updateCategoryRequest)
     {
-        var result = await _categoryService.UpdateCategoryAsync(updateCategoryRequest);
+        var result = await _categoryService.UpdateCategoryAsync(id, updateCategoryRequest);
 
         return result.Succeeded
             ? Ok(result)

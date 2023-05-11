@@ -27,7 +27,7 @@ public sealed class LibraryItemsController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Result<LibraryItemResponse>>> GetLibraryItems(int id)
+    public async Task<ActionResult<Result<LibraryItemResponse>>> GetLibraryItem(int id)
     {
         var result = await _libraryItemService.GetLibraryItemAsync(id);
 

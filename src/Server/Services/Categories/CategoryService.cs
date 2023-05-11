@@ -40,11 +40,11 @@ internal sealed class CategoryService : ICategoryService
             .ToListAsync();
     }
 
-    public async Task<Result> UpdateCategoryAsync(UpdateCategoryRequest updateCategoryRequest)
+    public async Task<Result> UpdateCategoryAsync(int id, UpdateCategoryRequest updateCategoryRequest)
     {
-        var record = await _dbContext.Categories.FindAsync(updateCategoryRequest.Id);
+        var record = await _dbContext.Categories.FindAsync(id);
         if (record is null)
-            return Result.Fail($"Could not find a category with ID {updateCategoryRequest.Id}");
+            return Result.Fail($"Could not find a category with ID {id}");
 
         // New name is the same as old name, do an early return.
         if (record.CategoryName == updateCategoryRequest.NewName)

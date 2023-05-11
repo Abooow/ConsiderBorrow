@@ -43,7 +43,7 @@ public sealed class EmployeesController : ControllerBase
     }
 
     [HttpPatch("{id}")]
-    public async Task<ActionResult<Result<EmployeeResponse>>> UpdateEmployee(int id, UpdateEmployeeRequest updateEmployeeRequest)
+    public async Task<ActionResult<Result>> UpdateEmployee(int id, UpdateEmployeeRequest updateEmployeeRequest)
     {
         var result = await _employeeService.UpdateEmployeeAsync(id, updateEmployeeRequest);
 
@@ -53,7 +53,7 @@ public sealed class EmployeesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    public async Task<ActionResult<Result<EmployeeResponse>>> DeleteEmployee(int id)
+    public async Task<ActionResult<Result>> DeleteEmployee(int id)
     {
         var result = await _employeeService.DeleteEmployeeAsync(id);
 

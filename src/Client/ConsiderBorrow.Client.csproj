@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Sdk\ConsiderBorrow.Sdk.csproj" />
     <ProjectReference Include="..\Shared\ConsiderBorrow.Shared.csproj" />
   </ItemGroup>
 

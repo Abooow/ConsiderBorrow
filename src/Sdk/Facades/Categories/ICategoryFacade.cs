@@ -1,9 +1,9 @@
 ﻿using ConsiderBorrow.Shared.Models.Categories;
 using ConsiderBorrow.Shared.Results;
 
-namespace ConsiderBorrow.Server.Services;
+namespace ConsiderBorrow.Sdk.Facades;
 
-public interface ICategoryService
+public interface ICategoryFacade
 {
     Task<Result<CategoryResponse>> CreateCategoryAsync(CreateCategoryRequest createCategoryRequest);
     Task<IEnumerable<CategoryResponse>> GetCategoriesAsync();
