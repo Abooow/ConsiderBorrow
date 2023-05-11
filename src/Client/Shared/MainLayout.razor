@@ -5,15 +5,19 @@
         <MudHidden Breakpoint="Breakpoint.MdAndUp">
             <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="ToggleDrawer" />
         </MudHidden>
-        <MudSpacer />
-        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
     </MudAppBar>
+    
     <MudDrawer @bind-Open="drawerOpen" Elevation="2">
         <MudDrawerHeader>
             <MudText Typo="Typo.h5" Class="mt-1">Consider Borrow</MudText>
         </MudDrawerHeader>
-        @*NavMenu*@
+        <MudNavMenu>
+            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.MenuBook">Inventory</MudNavLink>
+            <MudNavLink Href="/categories" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Tag">Categories</MudNavLink>
+            <MudNavLink Href="/employees" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.People">Employees</MudNavLink>
+        </MudNavMenu>
     </MudDrawer>
+    
     <MudMainContent>
         @Body
     </MudMainContent>
