@@ -83,6 +83,7 @@ else
         currentPage = 0;
         libraryItems = null;
         canLoadMoreItems = false;
+        hasCreatedNewItem = false;
         await GetNextPageAsync();
 
         this.StateHasChanged();
