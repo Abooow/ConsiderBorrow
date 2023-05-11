@@ -20,6 +20,11 @@ else if (libraryItems.Count == 0)
 else
 {
     <div class="pa-12">
+        @if (hasCreatedNewItem)
+        {
+            <MudAlert Class="mb-6" Severity="Severity.Warning">A new item has been created. Please refresh the page to see the updated content</MudAlert>
+        }
+
         <div class="d-flex justify-space-between mb-6">
             <MudSelect T="string" Label="Sort" @bind-Value="sortType" AnchorOrigin="Origin.BottomCenter" Dense="true" Style="max-width: 210px;">
                 <MudSelectItem Value="@("Category Name")" />
@@ -29,7 +34,7 @@ else
             <MudButton OnClick="CreateNewLibraryItem" Color="Color.Secondary" Variant="Variant.Outlined">Add New</MudButton>
         </div>
 
-        <div class="gap-4 mb-6" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+        <div class="gap-4 mb-12" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
             @foreach (var item in libraryItems)
             {
                 <LibraryItemCard Item="item" />
@@ -47,6 +52,8 @@ else
 
 @code {
     private List<LibraryItemResponse>? libraryItems;
+
+    private bool hasCreatedNewItem;
 
     private int currentPage;
     private bool canLoadMoreItems;
@@ -98,5 +105,7 @@ else
         var result = await DialogService.Show<CreateNewLibraryItemDialog>("Create Library Item").Result;
         if (result.Canceled)
             return;
+
+        hasCreatedNewItem = result.Data is not null;
     }
 }
