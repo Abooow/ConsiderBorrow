@@ -37,7 +37,7 @@ else
         <div class="gap-4 mb-12" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
             @foreach (var item in libraryItems)
             {
-                <LibraryItemCard Item="item" />
+                <LibraryItemCard Item="item" OnItemUpdated="HandleOnItemUpdated" />
             }
         </div>
 
@@ -102,11 +102,20 @@ else
 
     private async Task CreateNewLibraryItem()
     {
-        var result = await DialogService.Show<CreateNewLibraryItemDialog>("Create Library Item").Result;
-        if (result.Canceled)
+        var dialogResult = await DialogService.Show<CreateNewLibraryItemDialog>("Create Library Item").Result;
+        if (dialogResult.Canceled)
             return;
 
-        hasCreatedNewItem = result.Data is not null;
+        hasCreatedNewItem = dialogResult.Data is not null;
         canLoadMoreItems |= hasCreatedNewItem;
+    }
+
+    private void HandleOnItemUpdated(LibraryItemUpdated libraryItemUpdated)
+    {
+        int oldItemIndex = libraryItems!.IndexOf(libraryItemUpdated.OldItem);
+        if (oldItemIndex == -1)
+            return;
+
+        libraryItems[oldItemIndex] = libraryItemUpdated.NewItem;
     }
 }

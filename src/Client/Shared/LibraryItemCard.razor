@@ -58,12 +58,19 @@
     [EditorRequired]
     public required LibraryItemResponse Item { get; set; }
 
-    private void CheckOutItem()
+    [Parameter]
+    public EventCallback<LibraryItemUpdated> OnItemUpdated { get; set; }
+
+    private async Task CheckOutItem()
     {
         var parameters = new DialogParameters();
         parameters.Add(nameof(CheckOutLibraryItemDialog.Item), Item);
 
-        DialogService.Show<CheckOutLibraryItemDialog>("Check Out Item", parameters);
+        var dialogResult = await DialogService.Show<CheckOutLibraryItemDialog>("Check Out Item", parameters).Result;
+        if (dialogResult.Canceled)
+            return;
+
+        await OnItemUpdated.InvokeAsync(new LibraryItemUpdated(Item, (LibraryItemResponse)dialogResult.Data));
     }
 
     private async Task ReturnItem()
@@ -74,5 +81,7 @@
             Snackbar.Add(string.Join(", ", result.Messages), Severity.Error);
             return;
         }
+
+        await OnItemUpdated.InvokeAsync(new LibraryItemUpdated(Item, result.Data!));
     }
 }
