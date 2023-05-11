@@ -2,6 +2,7 @@
 @using ConsiderBorrow.Shared.Models.Categories;
 @inject ICategoryFacade CategoryFacade
 @inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
 <PageTitle>Categories</PageTitle>
 
@@ -15,7 +16,7 @@ else if (categories.Count == 0)
 {
     <div class="h-100 d-flex justify-center align-center">
         <div class="d-flex flex-column justify-center">
-            <MudText Typo="Typo.h4" Class="mb-4">No Items To Display</MudText>
+            <MudText Typo="Typo.h4" Class="mb-4">No Categories To Display</MudText>
             <MudButton OnClick="CreateNewCategory" Color="Color.Secondary" Variant="Variant.Outlined">Add New</MudButton>
         </div>
     </div>
@@ -39,8 +40,16 @@ else
                 @foreach (var category in categories)
                 {
                     <tr>
-                        <td>@category.Id</td>
-                        <td>@category.Name</td>
+                        <td>
+                            @category.Id
+                        </td>
+
+                        <td>
+                            <div class="d-flex justify-space-between align-center">
+                                @category.Name
+                                <MudIconButton Color="Color.Error" Icon="@Icons.Material.Filled.Delete" OnClick="() => DeleteCategory(category)" />
+                            </div>
+                        </td>
                     </tr>
                 }
             </tbody>
@@ -64,5 +73,18 @@ else
             return;
 
         categories!.Add((CategoryResponse)dialogResult.Data);
+    }
+
+    private async Task DeleteCategory(CategoryResponse category)
+    {
+        var result = await CategoryFacade.DeleteCategoryAsync(category.Id);
+        if (!result.Succeeded)
+        {
+            Snackbar.Add(string.Join(", ", result.Messages), Severity.Error);
+            return;
+        }
+
+        Snackbar.Add("Deleted Category", Severity.Success);
+        categories!.Remove(category);
     }
 }
