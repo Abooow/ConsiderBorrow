@@ -37,7 +37,7 @@ else
             <MudButton OnClick="CreateNewLibraryItem" Color="Color.Secondary" Variant="Variant.Outlined">Add New</MudButton>
         </div>
 
-        <div class="gap-4 mb-12" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));">
+        <div class="gap-4 mb-12" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));">
             @foreach (var item in libraryItems)
             {
                 <LibraryItemCard Item="item" OnItemUpdated="HandleOnItemUpdated" OnItemDeleted="HandleOnItemDeleted" />
@@ -135,6 +135,6 @@ else
     private void HandleOnItemDeleted(LibraryItemResponse libraryItem)
     {
         if (libraryItems!.Remove(libraryItem))
-            libraryItemsIsDirty = true;
+            libraryItemsIsDirty = libraryItems.Any();
     }
 }

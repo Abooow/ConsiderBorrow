@@ -72,6 +72,7 @@ else
         if (dialogResult.Canceled || dialogResult.Data is null)
             return;
 
+        Snackbar.Add("Created new Category", Severity.Success);
         categories!.Add((CategoryResponse)dialogResult.Data);
     }
 
