@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConsiderBorrow.Server.DataAccess;
 
 [Table("Employees", Schema = "Identity")]
+[Index(nameof(IsCEO), nameof(IsManager))]
 internal sealed class EmployeeRecord
 {
     [Key]

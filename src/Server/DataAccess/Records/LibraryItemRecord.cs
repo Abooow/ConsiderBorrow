@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConsiderBorrow.Server.DataAccess;
 
 [Table("LibraryItems", Schema = "ResourceManagement")]
+[Index(nameof(Type))]
 internal sealed class LibraryItemRecord
 {
     [Key]
