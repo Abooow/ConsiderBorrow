@@ -25,7 +25,7 @@ cd ConsiderBorrow/src/Server
 dotnet run
 ```
 
-The application will be accessible at [https://localhost:7267](https://localhost:7267)
+The application will be accessible at [http://localhost:5169](http://localhost:5169) or [https://localhost:7267](https://localhost:7267)
 
 ## Testing the API
 To test the API endpoints and interact with the application, you can [download the Postman collection](ConsiderBorrow.postman_collection.json) provided. The Postman collection file contains a set of pre-configured requests that you can import into Postman.
