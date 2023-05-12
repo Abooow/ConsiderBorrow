@@ -17,7 +17,7 @@ git clone https://github.com/Abooow/ConsiderBorrow.git
 
 3. Navigate to the root directory of the project:
 ```sh
-cd ConsiderBorrow
+cd ConsiderBorrow/src/Server
 ```
 
 4. Run the project using the .NET CLI:
