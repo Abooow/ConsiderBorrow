@@ -8,10 +8,12 @@ namespace ConsiderBorrow.Server.Services;
 internal sealed class CategoryService : ICategoryService
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly ILogger<CategoryService> _logger;
 
-    public CategoryService(ApplicationDbContext dbContext)
+    public CategoryService(ApplicationDbContext dbContext, ILogger<CategoryService> logger)
     {
         _dbContext = dbContext;
+        _logger = logger;
     }
 
     public async Task<Result<CategoryResponse>> CreateCategoryAsync(CreateCategoryRequest createCategoryRequest)
@@ -28,6 +30,8 @@ internal sealed class CategoryService : ICategoryService
 
         _dbContext.Categories.Add(record);
         await _dbContext.SaveChangesAsync();
+
+        _logger.LogInformation("Created new category with ID {Id}", record.Id);
 
         return Result<CategoryResponse>.Success(new CategoryResponse(record.Id, record.CategoryName));
     }
@@ -61,6 +65,8 @@ internal sealed class CategoryService : ICategoryService
 
         await _dbContext.SaveChangesAsync();
 
+        _logger.LogInformation("Updated category with ID {Id}", record.Id);
+
         return Result<CategoryResponse>.Success(new CategoryResponse(record.Id, record.CategoryName));
     }
 
@@ -84,6 +90,8 @@ internal sealed class CategoryService : ICategoryService
         _dbContext.Categories.Remove(record);
 
         await _dbContext.SaveChangesAsync();
+
+        _logger.LogInformation("Deleted category with ID {Id}", record.Id);
 
         return Result.Success();
     }

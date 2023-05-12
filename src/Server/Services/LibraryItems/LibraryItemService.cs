@@ -9,12 +9,14 @@ namespace ConsiderBorrow.Server.Services;
 internal sealed class LibraryItemService : ILibraryItemService
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly ILogger<LibraryItemService> _logger;
     private readonly IAcronymGenerator _acronymGenerator;
     private readonly IUpdateLibraryItemManager _updateLibraryItemManager;
 
-    public LibraryItemService(ApplicationDbContext dbContext, IAcronymGenerator acronymGenerator, IUpdateLibraryItemManager updateLibraryItemManager)
+    public LibraryItemService(ApplicationDbContext dbContext, ILogger<LibraryItemService> logger, IAcronymGenerator acronymGenerator, IUpdateLibraryItemManager updateLibraryItemManager)
     {
         _dbContext = dbContext;
+        _logger = logger;
         _acronymGenerator = acronymGenerator;
         _updateLibraryItemManager = updateLibraryItemManager;
     }
@@ -47,6 +49,8 @@ internal sealed class LibraryItemService : ILibraryItemService
 
         _dbContext.LibraryItems.Add(libraryItemRecord);
         await _dbContext.SaveChangesAsync();
+
+        _logger.LogInformation("Created new library item with ID {Id}", libraryItemRecord.Id);
 
         var response = ToLibraryItemResponse(libraryItemRecord, category);
         return Result<LibraryItemResponse>.Success(response);
@@ -137,6 +141,8 @@ internal sealed class LibraryItemService : ILibraryItemService
 
         await _dbContext.SaveChangesAsync();
 
+        _logger.LogInformation("Checked out library item with ID {Id}, Borrower = {Borrower}", record.Id, checkOutLibraryItemRequest.CustomerName);
+
         var response = ToLibraryItemResponse(record, record.Category!);
         return Result<LibraryItemResponse>.Success(response);
     }
@@ -162,6 +168,8 @@ internal sealed class LibraryItemService : ILibraryItemService
         _dbContext.Entry(record).Property(x => x.BorrowDate).IsModified = true;
 
         await _dbContext.SaveChangesAsync();
+
+        _logger.LogInformation("Returned library item with ID {Id}", record.Id);
 
         var response = ToLibraryItemResponse(record, record.Category!);
         return Result<LibraryItemResponse>.Success(response);
@@ -205,6 +213,8 @@ internal sealed class LibraryItemService : ILibraryItemService
         // The category information was not updated, and thus was not fetched. Therefore, the existing category will be fetched instead.
         categoryRecord ??= await _dbContext.Categories.FindAsync(record.CategoryId);
 
+        _logger.LogInformation("Updated library item with ID {Id}", record.Id);
+
         var response = ToLibraryItemResponse(record, categoryRecord!);
         return Result<LibraryItemResponse>.Success(response);
     }
@@ -220,6 +230,8 @@ internal sealed class LibraryItemService : ILibraryItemService
 
         _dbContext.LibraryItems.Remove(record);
         await _dbContext.SaveChangesAsync();
+
+        _logger.LogInformation("Deleted library item with ID {Id}", record.Id);
 
         return Result.Success();
     }

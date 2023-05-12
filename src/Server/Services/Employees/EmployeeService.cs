@@ -8,10 +8,12 @@ namespace ConsiderBorrow.Server.Services;
 internal sealed class EmployeeService : IEmployeeService
 {
     private readonly ApplicationDbContext _dbContext;
+    private readonly ILogger<EmployeeService> _logger;
 
-    public EmployeeService(ApplicationDbContext dbContext)
+    public EmployeeService(ApplicationDbContext dbContext, ILogger<EmployeeService> logger)
     {
         _dbContext = dbContext;
+        _logger = logger;
     }
 
     public async Task<Result<EmployeeResponse>> CreateEmployeeAsync(CreateEmployeeRequest createEmployeeRequest)
@@ -41,6 +43,8 @@ internal sealed class EmployeeService : IEmployeeService
 
         _dbContext.Employees.Add(employeeRecord);
         await _dbContext.SaveChangesAsync();
+
+        _logger.LogInformation("Created new employee with ID {Id}", employeeRecord.Id);
 
         var response = CreateEmployeeResponse(employeeRecord, Array.Empty<int>());
         return Result<EmployeeResponse>.Success(response);
@@ -147,6 +151,8 @@ internal sealed class EmployeeService : IEmployeeService
 
         var managedEmployees = await _dbContext.Employees.Where(x => x.ManagerId == id).Select(x => x.Id).ToListAsync();
 
+        _logger.LogInformation("Updated employee with ID {Id}", record.Id);
+
         var response = CreateEmployeeResponse(record, managedEmployees);
         return Result<EmployeeResponse>.Success(response);
     }
@@ -166,6 +172,8 @@ internal sealed class EmployeeService : IEmployeeService
 
         _dbContext.Employees.Remove(record);
         await _dbContext.SaveChangesAsync();
+
+        _logger.LogInformation("Deleted employee with ID {Id}", record.Id);
 
         return Result.Success();
     }
