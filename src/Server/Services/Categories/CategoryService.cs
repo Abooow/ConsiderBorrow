@@ -48,7 +48,7 @@ internal sealed class CategoryService : ICategoryService
     {
         var record = await _dbContext.Categories.FindAsync(id);
         if (record is null)
-            return Result<CategoryResponse>.Fail($"Could not find a category with ID {id}");
+            return Result<CategoryResponse>.Fail($"Could not find a category with ID {id}").AsNotFound();
 
         // New name is the same as old name, do an early return.
         if (record.CategoryName == updateCategoryRequest.NewName)
@@ -74,7 +74,7 @@ internal sealed class CategoryService : ICategoryService
     {
         bool categoryExists = await _dbContext.Categories.AnyAsync(x => x.Id == id);
         if (!categoryExists)
-            return Result.Fail($"Could not find a category with ID {id}");
+            return Result.Fail($"Could not find a category with ID {id}").AsNotFound();
 
         bool hasReferencingLibraryItems = await _dbContext.LibraryItems.AnyAsync(x => x.CategoryId == id);
         if (hasReferencingLibraryItems)

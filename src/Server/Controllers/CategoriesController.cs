@@ -1,4 +1,5 @@
-﻿using ConsiderBorrow.Server.Services;
+﻿using System.Net;
+using ConsiderBorrow.Server.Services;
 using ConsiderBorrow.Shared.Models.Categories;
 using ConsiderBorrow.Shared.Results;
 using Microsoft.AspNetCore.Mvc;
@@ -37,6 +38,9 @@ public sealed class CategoriesController : ControllerBase
     {
         var result = await _categoryService.UpdateCategoryAsync(id, updateCategoryRequest);
 
+        if (!result.Succeeded && result.StatusCode is HttpStatusCode.NotFound)
+            return NotFound(result);
+
         return result.Succeeded
             ? Ok(result)
             : BadRequest(result);
@@ -46,6 +50,9 @@ public sealed class CategoriesController : ControllerBase
     public async Task<ActionResult<Result>> DeleteCategory(int id)
     {
         var result = await _categoryService.DeleteCategoryAsync(id);
+
+        if (!result.Succeeded && result.StatusCode is HttpStatusCode.NotFound)
+            return NotFound(result);
 
         return result.Succeeded
             ? Ok(result)

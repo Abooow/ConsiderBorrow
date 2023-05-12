@@ -67,7 +67,7 @@ internal sealed class EmployeeService : IEmployeeService
             .FirstOrDefaultAsync();
 
         return employee is null
-            ? Result<EmployeeResponse>.Fail($"Could not find an employee with ID {id}")
+            ? Result<EmployeeResponse>.Fail($"Could not find an employee with ID {id}").AsNotFound()
             : Result<EmployeeResponse>.Success(employee);
     }
 
@@ -96,7 +96,7 @@ internal sealed class EmployeeService : IEmployeeService
     {
         var record = await _dbContext.Employees.FindAsync(id);
         if (record is null)
-            return Result<EmployeeResponse>.Fail($"Could not find an employee with ID {id}");
+            return Result<EmployeeResponse>.Fail($"Could not find an employee with ID {id}").AsNotFound();
 
         record.FirstName = updateEmployeeRequest.FirstName ?? record.FirstName;
         record.LastName = updateEmployeeRequest.LastName ?? record.LastName;
@@ -161,7 +161,7 @@ internal sealed class EmployeeService : IEmployeeService
     {
         var record = await _dbContext.Employees.FindAsync(id);
         if (record is null)
-            return Result.Fail($"Could not find an employee with ID {id}");
+            return Result.Fail($"Could not find an employee with ID {id}").AsNotFound();
 
         if (record.IsCEO || record.IsManager)
         {
@@ -214,9 +214,9 @@ internal sealed class EmployeeService : IEmployeeService
 
         var managerRecord = await _dbContext.Employees.AsNoTracking().FirstOrDefaultAsync(x => x.Id == managerId);
         if (managerRecord is null)
-            return Result.Fail($"Could not set the manager because no manager with ID {managerId} exists.");
+            return Result.Fail($"Could not set the manager because no manager with ID {managerId} exists.").AsNotFound();
 
-        // Regular employees must have a manager defined.
+        // Regular employees can not be managers.
         if (!managerRecord.IsCEO && !managerRecord.IsManager)
             return Result.Fail("Can not set a regular employee as a manager.");
 

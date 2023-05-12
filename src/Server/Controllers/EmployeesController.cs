@@ -1,4 +1,5 @@
-﻿using ConsiderBorrow.Server.Services;
+﻿using System.Net;
+using ConsiderBorrow.Server.Services;
 using ConsiderBorrow.Shared.Models.Employees;
 using ConsiderBorrow.Shared.Results;
 using Microsoft.AspNetCore.Mvc;
@@ -31,6 +32,9 @@ public sealed class EmployeesController : ControllerBase
     {
         var result = await _employeeService.GetEmployeeAsync(id);
 
+        if (!result.Succeeded && result.StatusCode is HttpStatusCode.NotFound)
+            return NotFound(result);
+
         return result.Succeeded
             ? Ok(result)
             : BadRequest(result);
@@ -47,6 +51,9 @@ public sealed class EmployeesController : ControllerBase
     {
         var result = await _employeeService.UpdateEmployeeAsync(id, updateEmployeeRequest);
 
+        if (!result.Succeeded && result.StatusCode is HttpStatusCode.NotFound)
+            return NotFound(result);
+
         return result.Succeeded
             ? Ok(result)
             : BadRequest(result);
@@ -56,6 +63,9 @@ public sealed class EmployeesController : ControllerBase
     public async Task<ActionResult<Result>> DeleteEmployee(int id)
     {
         var result = await _employeeService.DeleteEmployeeAsync(id);
+
+        if (!result.Succeeded && result.StatusCode is HttpStatusCode.NotFound)
+            return NotFound(result);
 
         return result.Succeeded
             ? Ok(result)

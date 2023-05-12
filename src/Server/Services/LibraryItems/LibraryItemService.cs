@@ -76,7 +76,7 @@ internal sealed class LibraryItemService : ILibraryItemService
             .FirstOrDefaultAsync();
 
         if (libraryItem is null)
-            return Result<LibraryItemResponse>.Fail($"Could not find a library item with ID {id}");
+            return Result<LibraryItemResponse>.Fail($"Could not find a library item with ID {id}").AsNotFound();
 
         libraryItem.TitleAcronym = _acronymGenerator.CreateAcronym(libraryItem.Title);
 
@@ -123,7 +123,7 @@ internal sealed class LibraryItemService : ILibraryItemService
     {
         var record = await _dbContext.LibraryItems.Include(x => x.Category).FirstOrDefaultAsync(x => x.Id == id);
         if (record is null)
-            return Result<LibraryItemResponse>.Fail($"Could not find a library item with ID {id}");
+            return Result<LibraryItemResponse>.Fail($"Could not find a library item with ID {id}").AsNotFound();
 
         // Check if the customer can borrow this item.
         if (!record.IsBorrowable)
@@ -151,7 +151,7 @@ internal sealed class LibraryItemService : ILibraryItemService
     {
         var record = await _dbContext.LibraryItems.Include(x => x.Category).FirstOrDefaultAsync(x => x.Id == id);
         if (record is null)
-            return Result<LibraryItemResponse>.Fail($"Could not find a library item with ID {id}");
+            return Result<LibraryItemResponse>.Fail($"Could not find a library item with ID {id}").AsNotFound();
 
         // Check if item can be returned.
         if (!record.IsBorrowable)
@@ -179,7 +179,7 @@ internal sealed class LibraryItemService : ILibraryItemService
     {
         var record = await _dbContext.LibraryItems.FindAsync(id);
         if (record is null)
-            return Result<LibraryItemResponse>.Fail($"Could not find a library item with ID {id}");
+            return Result<LibraryItemResponse>.Fail($"Could not find a library item with ID {id}").AsNotFound();
 
         // Don't allow updates if someone is borrowing it.
         if (record.Borrower is not null)
@@ -191,7 +191,7 @@ internal sealed class LibraryItemService : ILibraryItemService
         {
             categoryRecord = await _dbContext.Categories.FindAsync(updateLibraryItemRequest.CategoryId);
             if (categoryRecord is null)
-                return Result<LibraryItemResponse>.Fail($"Could not find a category with ID {updateLibraryItemRequest.CategoryId}");
+                return Result<LibraryItemResponse>.Fail($"Could not find a category with ID {updateLibraryItemRequest.CategoryId}").AsNotFound();
 
             record.CategoryId = updateLibraryItemRequest.CategoryId.Value;
         }
@@ -223,7 +223,7 @@ internal sealed class LibraryItemService : ILibraryItemService
     {
         var record = await _dbContext.LibraryItems.FindAsync(id);
         if (record is null)
-            return Result.Fail($"Could not find a library item with ID {id}");
+            return Result.Fail($"Could not find a library item with ID {id}").AsNotFound();
 
         if (record.Borrower is not null)
             return Result.Fail("Cannot delete this library item. There is someone that is borrowing it.");
